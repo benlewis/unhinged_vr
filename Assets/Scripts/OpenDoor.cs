@@ -9,6 +9,8 @@ public class OpenDoor : MonoBehaviour {
 	private float distanceMoved = 0.0f;
 	private bool moving = false;
 	
+	public GameObject keyGear;
+	
 	// Use this for initialization
 	void Start () {
 	
@@ -16,8 +18,8 @@ public class OpenDoor : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetButton ("Fire1") && distanceMoved < maxDistance) {
-			Debug.Log ("Fire!");
+		
+		if (keyGear.GetComponent<Gear>().IsSpinning()) {
 			moving = true;
 		}
 		
