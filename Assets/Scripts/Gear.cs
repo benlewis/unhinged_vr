@@ -18,8 +18,7 @@ public class Gear : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		radius = transform.FindChild("Gear Mesh").renderer.bounds.size.x;
-		
-		Debug.Log("Rotation speed is " + rotationSpeed);
+
 		if (gameObject.activeSelf)
 			GearManager.Instance().AddGear(this);		
 	}
@@ -41,7 +40,6 @@ public class Gear : MonoBehaviour {
 	
 	// FixedUpdate is called once every 0.2 seconds
 	void FixedUpdate () {
-		//Debug.Log (gameObject.transform.rotation.ToString());
 		//if (!GearManager.Instance().updateInProgress && Input.GetMouseButton(1))
 		transform.Rotate(0,0,rotationSpeed * Time.deltaTime);
 	}

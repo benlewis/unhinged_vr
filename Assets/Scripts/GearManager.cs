@@ -41,12 +41,9 @@ public class GearManager : MonoBehaviour {
 			gears.Add(g);
 			
 		if (g.startingPower != 0.0f && !powerGears.Contains(g)) {
-			Debug.Log ("power gear");
 			UpdateGears();
 			powerGears.Add(g);
-		}
-		
-		Debug.Log("Added gear with starting power " + g.startingPower);		
+		}		
 	}
 	
 	public void RemoveGear(Gear g) {
@@ -75,12 +72,10 @@ public class GearManager : MonoBehaviour {
 		updateInProgress = true;
 		
 		foreach (Gear g in gears) {
-			Debug.Log("Setting power from starting to " + g.startingPower);
 			g.rotationSpeed = g.startingPower;
 		}
 		
 		foreach (Gear g in powerGears) {
-			Debug.Log ("Calling power connected Gears");
 			g.powerConnectedGears();	
 		}
 		

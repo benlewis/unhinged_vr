@@ -19,7 +19,7 @@ public class OpenDoor : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		if (keyGear.GetComponent<Gear>().IsSpinning()) {
+		if (keyGear.GetComponent<Gear>().IsSpinning() && distanceMoved < maxDistance) {
 			moving = true;
 		}
 		
