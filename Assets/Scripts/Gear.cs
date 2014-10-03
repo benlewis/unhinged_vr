@@ -46,7 +46,7 @@ public class Gear : MonoBehaviour {
 	
 	public void AddToScene() {
 		gameObject.SetActive(true);
-		//GearManager.Instance().AddGear (this);
+		GearManager.Instance().AddGear (this);
 	}
 	
 	public void RemoveFromScene() {

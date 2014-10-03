@@ -5,8 +5,8 @@ using System.Collections.Generic;
 /* TODO
 - Refactor the ClickableObject system instead of CreateGear
 - Make the prize Clickable
-- Use a real highlighting system with a temporary bright material for now ($35 to improve later on)
 - Add long poles to connect gears 
+- Make crouching box to not let you stand up when under something
 - Download real textures/models to make the scene look more amazing
 - Spruce up the scene with columns, wall fixtures, etc
 - Figure out a better animation when gears enter/leave a peg
@@ -16,6 +16,12 @@ using System.Collections.Generic;
 - Add sounds: gears moving, doors opening
 - Add music: awesome
 - Figure out how lighting works. Make lighting awesome.
+
+*/
+
+/* DONE
+- Use a real highlighting system with a temporary bright material for now ($35 to improve later on)
+
 
 */
 
@@ -36,6 +42,9 @@ public class GearManager : MonoBehaviour {
 	}
 
 	public void AddGear(Gear g) {
+		// Set the gear's peg to be not selectable
+		g.GetComponentInParent<SelectableObject>().SetSelectable(false);
+	
 		// Keep track of all gears in the scene
 		if (!gears.Contains(g))
 			gears.Add(g);
@@ -47,6 +56,10 @@ public class GearManager : MonoBehaviour {
 	}
 	
 	public void RemoveGear(Gear g) {
+		// This gear's peg can now be selected to add a gear
+		// TODO: Make this only possible in pegs that are allowed to have gears
+		g.GetComponentInParent<SelectableObject>().SetSelectable(false);
+		
 		// Remove this from the list of gears in the scene
 		if (gears.Contains(g))
 			gears.Remove(g);

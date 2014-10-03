@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SelectableObject : MonoBehaviour {
-
-	// This script should be a Component of this GameObject
-	// It is responsible for handling the SelectEvent method 
-	public MonoBehaviour objectScript;
+/*
+	This class is abstract. All SelectableObjects
+	Need to implement at least their own Select method
+*/
+public abstract class SelectableObject : MonoBehaviour {
 	
 	public Material highlightMaterial;
 	
@@ -34,10 +34,14 @@ public class SelectableObject : MonoBehaviour {
 		renderer.material = baseMaterial;
 	}
 	
-	public void Select() {
-		// Each SelectableObject has their own method for handling how a "Select" call should happen
-		
-		// This will call that method. Ideally we could use inheritance rather than SendMessage, but not a big deal.
-		objectScript.SendMessage("SelectEvent");
+	public void SetSelectable(bool isSelectable) {
+		if (isSelectable)
+			gameObject.layer = LayerMask.NameToLayer("Selectable");
+		else
+			gameObject.layer = LayerMask.NameToLayer("Default");
+				
 	}
+	
+	public abstract void Select();
+	
 }

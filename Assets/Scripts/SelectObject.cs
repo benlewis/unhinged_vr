@@ -25,14 +25,12 @@ public class SelectObject : MonoBehaviour {
 				
 		if (newSelectedObject != selectedObject) {
 			if (selectedObject != null) {
-				Debug.Log("Turning off highlight for " + selectedObject.name);
 				selectedObject.GetComponent<SelectableObject>().TurnOffHighlight();
 			}
 			
 			selectedObject = newSelectedObject;
 			
 			if (selectedObject != null) {
-				Debug.Log("Turning on highlight for " + selectedObject.name);
 				selectedObject.GetComponent<SelectableObject>().TurnOnHighlight();
 			}
 		}
