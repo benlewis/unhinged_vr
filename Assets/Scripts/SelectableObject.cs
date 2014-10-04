@@ -14,7 +14,7 @@ public abstract class SelectableObject : MonoBehaviour {
 	private Material baseMaterial;
 	
 	public void Start() {
-
+		SetSelectable(IsSelectable());
 	}
 
 	public void TurnOnHighlight() {
@@ -43,5 +43,7 @@ public abstract class SelectableObject : MonoBehaviour {
 	}
 	
 	public abstract void Select();
-	
+	public virtual bool IsSelectable() {
+		return true;
+	}
 }

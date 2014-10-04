@@ -8,4 +8,9 @@ public class PegSelectableObject : SelectableObject {
 		Gear g = GetComponentsInChildren<Gear>(true)[0];
 		g.AddToScene();
 	}
+	
+	public override bool IsSelectable() {
+		Gear g = GetComponentsInChildren<Gear>(true)[0];
+		return (!g.gameObject.activeSelf);
+	}
 }

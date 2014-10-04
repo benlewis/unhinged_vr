@@ -45,7 +45,6 @@ public class pc_AboutWindowSetup : AssetPostprocessor
 #endregion
 }
 
-/* Change 'AboutWindow' to your own class name */
 public class pc_AboutWindow : EditorWindow
 {
 
@@ -152,7 +151,7 @@ public class pc_AboutWindow : EditorWindow
 	// 	string[] entries = System.Array.FindAll(allFiles, name => name.Contains("pc_AboutEntry"));
 		
 	// 	if(entries.Length > 0)
-	// 		pc_AboutWindow.Init(entries[0], true);
+	// 		AboutWindow.Init(entries[0], true);
 	// }
 
 	/**
