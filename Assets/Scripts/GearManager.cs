@@ -3,15 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 
 /* TODO
-- Refactor the ClickableObject system instead of CreateGear
-- Make the prize Clickable
 - Add long poles to connect gears 
-- Make crouching box to not let you stand up when under something
 - Download real textures/models to make the scene look more amazing
 - Spruce up the scene with columns, wall fixtures, etc
 - Figure out a better animation when gears enter/leave a peg
 - Different materials to mark different gears: user placeable, starting power, fixed position, key gear
-- Add a door which moves when gears are hooked up to it
 - Create the level selector with the map, elevator, and hallways/train ride
 - Add sounds: gears moving, doors opening
 - Add music: awesome
@@ -21,6 +17,10 @@ using System.Collections.Generic;
 
 /* DONE
 - Use a real highlighting system with a temporary bright material for now ($35 to improve later on)
+- Refactor the ClickableObject system instead of CreateGear
+- Make the prize Clickable
+- Make crouching box to not let you stand up when under something
+- Add a door which moves when gears are hooked up to it
 
 
 */
