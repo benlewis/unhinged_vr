@@ -7,19 +7,19 @@ public class CrouchBoxTrigger : MonoBehaviour {
 	public bool canStand = true;
 	
 	void OnTriggerEnter(Collider other) {
-		if (other.name == "First Person Controller")
+		if (other.transform == transform.parent)
 			return;
 		canStand = false;
 	}
 	
 	void OnTriggerExit(Collider other) {
-		if (other.name == "First Person Controller")
+		if (other.transform == transform.parent)
 			return;
 		canStand = true;
 	}
 	
 	void OnTriggerStay(Collider other) {
-		if (other.name == "First Person Controller")
+		if (other.transform == transform.parent)
 			return;
 		canStand = false;
 	}
