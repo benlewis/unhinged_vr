@@ -18,6 +18,8 @@ public class FollowPath : MonoBehaviour {
 	private float rotationDirection = 0.1f;
 	private int maxRotates = 50;
 	
+	private SmoothQuaternion smoothQ;
+	
 	// Use this for initialization
 	void Start () {
 		GameObject pathObject = GameObject.Find ("Path");
@@ -28,6 +30,9 @@ public class FollowPath : MonoBehaviour {
 		foreach (Transform t in path) {
 			// Debug.Log (t);
 		}
+		
+		smoothQ = transform.rotation;
+		smoothQ.Duration = 0.5f;
 	}
 	
 	public void OnTriggerEnter(Collider other) {
@@ -62,6 +67,12 @@ public class FollowPath : MonoBehaviour {
 		if (transform.position == path[path.Length - 1].position)
 			Application.LoadLevel("room");
 				
+		Debug.Log (pathPosition);		
+		// Rotate to the next point
+		//targetRotation = Quaternion.LookRotation (target.position - transform.position);
+		//transform.rotation = Quaternion.Lerp (transform.rotation, qToBeUsed, 0.5f);
+		smoothQ.Value = qToBeUsed;
+		transform.rotation = smoothQ;
 		//transform.rotation = qToBeUsed;	
 		//transform.Rotate (0,0, 2);
 		
