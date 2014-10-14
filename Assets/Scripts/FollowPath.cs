@@ -34,6 +34,8 @@ public class FollowPath : MonoBehaviour {
 		if (other.gameObject.GetComponent<SelectObject>()) {
 			// We collided with a player character. Attach them to the platform
 			other.transform.parent = transform;
+			other.GetComponent<CharacterController>().enabled = false;
+			other.transform.localPosition = Vector3.up * 0.5f;
 			
 			// And start the ride
 			moving = true;
