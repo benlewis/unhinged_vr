@@ -15,7 +15,7 @@ public class Crouch : MonoBehaviour {
 				float heightShift = Mathf.Min(Time.deltaTime / crouchTime * (standingHeight - crouchingHeight), 
 				                              cc.height - crouchingHeight);
 				cc.height -= heightShift;
-				cc.transform.Translate(0, -heightShift / 2.0f, 0);
+				cc.transform.Translate(0, -heightShift / 2.0f, 0, Space.Self);
 			}
 		} else if (cc.height < standingHeight) {
 			// Wants to stand, but can we?
@@ -23,7 +23,7 @@ public class Crouch : MonoBehaviour {
 				float heightShift = Mathf.Min(Time.deltaTime / crouchTime * (standingHeight - crouchingHeight), 
 				                              standingHeight - cc.height);
 				cc.height += heightShift;
-				cc.transform.Translate(0, heightShift / 2.0f, 0);
+				cc.transform.Translate(0, heightShift / 2.0f, 0, Space.Self);
 			} else {
 				//TODO: bump sound?
 			}			                       	
