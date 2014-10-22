@@ -20,8 +20,9 @@ public class SelectObject : MonoBehaviour {
 		
 		GameObject newSelectedObject = null;
 		// if (Physics.Raycast(ray, out hit, range, layer))
-		if (Physics.SphereCast(ray, 0.5f, out hit, range, layer))
+		if (Physics.SphereCast(ray, 0.5f, out hit, range, layer)) {
 			newSelectedObject = hit.collider.gameObject;
+		}
 				
 		if (newSelectedObject != selectedObject) {
 			if (selectedObject != null) {
