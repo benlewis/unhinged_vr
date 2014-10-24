@@ -36,7 +36,8 @@ public class Door : MonoBehaviour {
 	
 	private void EndOpen(){
 		endlocalPos = transform.localPosition ;
-		StartCoroutine( WaitToClose());
+		if (waitTime > 0.0f)
+			StartCoroutine( WaitToClose());
 	}
 	
 	private IEnumerator WaitToClose(){

@@ -10,28 +10,34 @@ public abstract class SelectableObject : MonoBehaviour {
 	public Material highlightMaterial;
 	
 	
-	private bool isHighlighted = false;
+	protected bool isHighlighted = false;
 	protected Material baseMaterial;
 	
 	public void Start() {
 		SetSelectable(IsSelectable());
 	}
 
-	public void TurnOnHighlight() {
+	public virtual void TurnOnHighlight() {
 		if (isHighlighted)
 			return;
 		
 		isHighlighted = true;
-		baseMaterial = renderer.material; 
-		renderer.material = highlightMaterial;		
+		
+		if (highlightMaterial) {
+			baseMaterial = renderer.material; 
+			renderer.material = highlightMaterial;		
+		}
 	}
 	
-	public void TurnOffHighlight() {
+	public virtual void TurnOffHighlight() {
 		if (!isHighlighted)
 			return;
 		
 		isHighlighted = false;
-		renderer.material = baseMaterial;
+		
+		if (highlightMaterial) {
+			renderer.material = baseMaterial;
+		}
 	}
 	
 	public void SetSelectable(bool isSelectable) {
