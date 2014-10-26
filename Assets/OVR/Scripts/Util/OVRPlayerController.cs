@@ -215,6 +215,11 @@ public class OVRPlayerController : MonoBehaviour
 		if (dpad_move || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
 			moveInfluence *= 2.0f;
 
+		// Jump!
+		if (Input.GetButtonDown("Jump")) {
+			Jump ();
+		}
+
 		if (DirXform != null)
 		{
 			if (moveForward)
