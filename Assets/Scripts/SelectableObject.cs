@@ -13,7 +13,7 @@ public abstract class SelectableObject : MonoBehaviour {
 	protected bool isHighlighted = false;
 	protected Material baseMaterial;
 	
-	public void Start() {
+	public virtual void Start() {
 		SetSelectable(IsSelectable());
 	}
 

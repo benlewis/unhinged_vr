@@ -7,25 +7,32 @@ public class FollowPath : MonoBehaviour {
 	public float maxSpeed = 0.5f;
 	public int smoothnessSteps = 100;
 
-	[HideInInspector]
-	public Transform[] path;
-	
-	private float pathPosition = 0;
+	private Transform[] path = null;
+	private string level = null;
 	
 	[HideInInspector]
-	public bool moving = false;
+	public bool inPlatform = false;
 		
+	private float pathPosition;
+	
 	private SmoothQuaternion smoothQ;
+	private Quaternion startingRotation;
 	
 	// Use this for initialization
 	void Start () {
-		GameObject pathObject = GameObject.Find ("Path");
+		smoothQ = transform.rotation;
+		startingRotation = transform.rotation;
+		smoothQ.Duration = 0.5f;
+	}
+	
+	public void SetPath(GameObject pathObject) {
 		List<Transform> transforms = new List<Transform>(pathObject.GetComponentsInChildren<Transform>());
 		transforms.RemoveAt(0); // For some reason GetComponentsInChildren returns the main component. Delete it.
 		path = transforms.ToArray();
-
-		smoothQ = transform.rotation;
-		smoothQ.Duration = 0.5f;
+	}
+	
+	public void SetLevel(string levelName) {
+		level = levelName;
 	}
 	
 	// Update is called once per frame
@@ -34,7 +41,8 @@ public class FollowPath : MonoBehaviour {
 //			moving = !moving;
 //		}
 		
-		if (!moving)
+		// Only move once all the pieces are in place
+		if (!inPlatform || path == null || level == null)
 			return;
 				    
 		Quaternion qToBeUsed = Quaternion.identity;
@@ -46,9 +54,11 @@ public class FollowPath : MonoBehaviour {
 		
 		
 		if (transform.position == path[path.Length - 1].position)
-			Application.LoadLevel("room");
-				
-		smoothQ.Value = qToBeUsed;
+			Application.LoadLevel(level);
+		
+		Quaternion newRotation = qToBeUsed;
+		qToBeUsed.y -= startingRotation.y;		
+		smoothQ.Value = newRotation;
 		transform.rotation = smoothQ;
 	}
 }
