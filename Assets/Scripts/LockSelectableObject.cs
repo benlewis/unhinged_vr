@@ -8,6 +8,8 @@ public class LockSelectableObject : SelectableObject {
 	
 	public GameObject lockedPanel;
 	public GameObject unlockedPanel;
+	
+	public SelectableObject partnerObject;
 
 	private bool locked = true;
 	
@@ -21,7 +23,14 @@ public class LockSelectableObject : SelectableObject {
 		//TODO: Play a click sound
 
 		door1.OpenDoor();
-		door2.OpenDoor();		
+		door2.OpenDoor();
+		
+		if (partnerObject)
+			partnerObject.SetSelectable(partnerObject.IsSelectable());		
+	}
+	
+	public bool DoorOpen() {	
+		return !locked;
 	}
 	
 	public override void TurnOnHighlight() {

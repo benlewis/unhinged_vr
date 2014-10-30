@@ -5,6 +5,7 @@ using System.Collections;
 	This class is abstract. All SelectableObjects
 	Need to implement at least their own Select method
 */
+
 public abstract class SelectableObject : MonoBehaviour {
 	
 	public Material highlightMaterial;

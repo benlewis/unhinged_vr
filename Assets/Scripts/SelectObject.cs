@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent (typeof(AudioSource))]
 public class SelectObject : MonoBehaviour {
 
 	public float range  = 5.0f;
+	public AudioClip highlightSound;
+	public AudioClip selectSound;
 
 	[HideInInspector]
 	public GameObject selectedObject = null;
@@ -25,6 +28,9 @@ public class SelectObject : MonoBehaviour {
 		}
 				
 		if (newSelectedObject != selectedObject) {
+			if (highlightSound)
+				audio.PlayOneShot(highlightSound);
+		
 			if (selectedObject != null) {
 				selectedObject.GetComponent<SelectableObject>().TurnOffHighlight();
 			}
@@ -36,7 +42,10 @@ public class SelectObject : MonoBehaviour {
 			}
 		}
 		
-		if (Input.GetButtonDown("Fire1") && selectedObject != null) {				
+		if (Input.GetButtonDown("Fire1") && selectedObject != null) {
+			if (selectSound)
+				audio.PlayOneShot(selectSound);
+								
 			selectedObject.GetComponent<SelectableObject>().Select();
 		}
 	}
