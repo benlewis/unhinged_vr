@@ -27,10 +27,7 @@ public class SelectObject : MonoBehaviour {
 			newSelectedObject = hit.collider.gameObject;
 		}
 				
-		if (newSelectedObject != selectedObject) {
-			if (highlightSound)
-				audio.PlayOneShot(highlightSound);
-		
+		if (newSelectedObject != selectedObject) {			
 			if (selectedObject != null) {
 				selectedObject.GetComponent<SelectableObject>().TurnOffHighlight();
 			}
@@ -38,6 +35,9 @@ public class SelectObject : MonoBehaviour {
 			selectedObject = newSelectedObject;
 			
 			if (selectedObject != null) {
+				if (highlightSound)
+					audio.PlayOneShot(highlightSound);
+				
 				selectedObject.GetComponent<SelectableObject>().TurnOnHighlight();
 			}
 		}

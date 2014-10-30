@@ -22,7 +22,9 @@ public class TransportSeletableObject : SelectableObject {
 		platformPath.SetPath(path);
 		platformPath.SetLevel(levelName);
 		
+		//walls.audio.Play();
 		walls.SetActive(false);
+		//Destroy (walls, walls.audio.clip.length);
 	}
 	
 	public override void TurnOnHighlight() {
