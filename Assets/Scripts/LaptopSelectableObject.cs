@@ -3,44 +3,27 @@ using System.Collections;
 
 public class LaptopSelectableObject : SelectableObject {
 	
-	public GameObject[] parts;	
 	public GameObject itemToMove;
-	public LockSelectableObject partnerLock; 
+	public Transform laptopFold;
 	
-	private Color[] baseColors;	
 	private bool opened = false;
-
-	public override void Start() {
-		base.Start ();
-		
-		baseColors = new Color[parts.Length];
-		for (int i = 0; i < parts.Length; i++) {
-			baseColors[i] = parts[i].renderer.material.color;
-		}
-	}
+	private bool itemMoved  = false;
 	
-	public override void Select() {
-		opened = true;
+	public override void Select() {		
 		itemToMove.GetComponent<Animator>().Play ("move_down");		
+		itemMoved = true;
+		SetSelectable();
 	}
 	
 	public override bool IsSelectable() {
-		return (!opened && partnerLock.DoorOpen());
+		return (opened && !itemMoved);
 	}
 	
-	public override void TurnOnHighlight() {
-		base.TurnOnHighlight();
-		
-		for (int i = 0; i < parts.Length; i++) {
-			parts[i].renderer.material.color = Color.green;
-		}
-	}
-	
-	public override void TurnOffHighlight() {
-		base.TurnOffHighlight();
-		
-		for (int i = 0; i < parts.Length; i++) {
-			parts[i].renderer.material.color = baseColors[i];
-		}
+	public void Open() {
+		// Open the hinge, turn on highlight, play sound
+		laptopFold.Rotate(250.0f - laptopFold.localEulerAngles.x, 0, 0);
+		opened = true;
+		audio.Play();
+		SetSelectable();
 	}
 }

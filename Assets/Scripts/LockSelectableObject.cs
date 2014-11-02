@@ -15,7 +15,7 @@ public class LockSelectableObject : SelectableObject {
 	
 	public override void Select() {
 		locked = false;
-		SetSelectable(false);
+		SetSelectable();
 		
 		lockedPanel.SetActive(false);
 		unlockedPanel.SetActive(true);
@@ -26,7 +26,7 @@ public class LockSelectableObject : SelectableObject {
 		door2.OpenDoor();
 		
 		if (partnerObject)
-			partnerObject.SetSelectable(partnerObject.IsSelectable());		
+			partnerObject.SetSelectable();		
 	}
 	
 	public bool DoorOpen() {	

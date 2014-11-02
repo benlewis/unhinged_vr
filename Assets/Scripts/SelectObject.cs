@@ -22,7 +22,6 @@ public class SelectObject : MonoBehaviour {
 		LayerMask layer = LayerMask.GetMask("Selectable");
 		
 		GameObject newSelectedObject = null;
-		// if (Physics.Raycast(ray, out hit, range, layer))
 		if (Physics.SphereCast(ray, 0.5f, out hit, range, layer)) {
 			newSelectedObject = hit.collider.gameObject;
 		}

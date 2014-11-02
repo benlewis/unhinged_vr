@@ -13,7 +13,7 @@ public class RotateOnEnter : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		if (rotate)
+		if (!rotate)
 			transform.Rotate (0, rotateSpeed, 0);
 	}
 	

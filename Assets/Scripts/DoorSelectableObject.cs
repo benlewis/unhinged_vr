@@ -9,15 +9,11 @@ public class DoorSelectableObject : SelectableObject {
 	public override void Select() {
 		open = true;
 		hingeJoint.useMotor = true;
-		SetSelectable(false);
+		SetSelectable();
 	}
 	
 	public override bool IsSelectable() {
 		return (!open);
 	}
 	
-	// Update is called once per frame
-	void Update () {
-
-	}
 }

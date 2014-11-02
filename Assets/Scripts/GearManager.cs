@@ -3,14 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 
 /* TODO
+- Create a button & script to set Screen vs Oculus in all scenes
+- Rotate the platform walls and show Level # options
+- Use the medieval models to make the gear scene awesome
+- Rotate the pegs
+- Let the user pick up gears and place them, lifo
+
 - Add long poles to connect gears 
 - Download real textures/models to make the scene look more amazing
 - Spruce up the scene with columns, wall fixtures, etc
 - Figure out a better animation when gears enter/leave a peg
 - Different materials to mark different gears: user placeable, starting power, fixed position, key gear
-- Create the level selector with the map, elevator, and hallways/train ride
 - Add sounds: gears moving, doors opening
-- Add music: awesome
 - Figure out how lighting works. Make lighting awesome.
 
 */
@@ -21,6 +25,8 @@ using System.Collections.Generic;
 - Make the prize Clickable
 - Make crouching box to not let you stand up when under something
 - Add a door which moves when gears are hooked up to it
+- Create the level selector with the map, elevator, and hallways/train ride
+- Add music: awesome
 
 
 */
@@ -43,7 +49,7 @@ public class GearManager : MonoBehaviour {
 
 	public void AddGear(Gear g) {
 		// Set the gear's peg to be not selectable
-		g.GetComponentInParent<SelectableObject>().SetSelectable(false);
+		g.GetComponentInParent<SelectableObject>().SetSelectable();
 	
 		// Keep track of all gears in the scene
 		if (!gears.Contains(g))
@@ -58,7 +64,7 @@ public class GearManager : MonoBehaviour {
 	public void RemoveGear(Gear g) {
 		// This gear's peg can now be selected to add a gear
 		// TODO: Make this only possible in pegs that are allowed to have gears
-		g.GetComponentInParent<SelectableObject>().SetSelectable(false);
+		g.GetComponentInParent<SelectableObject>().SetSelectable();
 		
 		// Remove this from the list of gears in the scene
 		if (gears.Contains(g))

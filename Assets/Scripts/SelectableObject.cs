@@ -8,14 +8,23 @@ using System.Collections;
 
 public abstract class SelectableObject : MonoBehaviour {
 	
+	public GameObject[] parts;	
 	public Material highlightMaterial;
-	
+	public Color highlightColor;
 	
 	protected bool isHighlighted = false;
-	protected Material baseMaterial;
+	protected Material[] baseMaterials;
+	protected Color[] baseColors;	
 	
 	public virtual void Start() {
-		SetSelectable(IsSelectable());
+		SetSelectable();
+		
+		baseColors = new Color[parts.Length];
+		baseMaterials = new Material[parts.Length];
+		for (int i = 0; i < parts.Length; i++) {
+			baseColors[i] = parts[i].renderer.material.color;
+			baseMaterials[i] = parts[i].renderer.material;
+		}		
 	}
 
 	public virtual void TurnOnHighlight() {
@@ -24,9 +33,11 @@ public abstract class SelectableObject : MonoBehaviour {
 		
 		isHighlighted = true;
 		
-		if (highlightMaterial) {
-			baseMaterial = renderer.material; 
-			renderer.material = highlightMaterial;		
+		for (int i = 0; i < parts.Length; i++) {
+			if (highlightMaterial != null)
+				parts[i].renderer.material = highlightMaterial;
+			else 
+				parts[i].renderer.material.color = highlightColor;
 		}
 	}
 	
@@ -35,14 +46,17 @@ public abstract class SelectableObject : MonoBehaviour {
 			return;
 		
 		isHighlighted = false;
-		
-		if (highlightMaterial) {
-			renderer.material = baseMaterial;
-		}
+
+		for (int i = 0; i < parts.Length; i++) {
+			if (highlightMaterial != null)
+				parts[i].renderer.material = baseMaterials[i];
+			else
+				parts[i].renderer.material.color = baseColors[i];
+		}			
 	}
 	
-	public void SetSelectable(bool isSelectable) {
-		if (isSelectable)
+	public void SetSelectable() {
+		if (IsSelectable())
 			gameObject.layer = LayerMask.NameToLayer("Selectable");
 		else
 			gameObject.layer = LayerMask.NameToLayer("Default");
