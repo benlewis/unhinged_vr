@@ -211,14 +211,14 @@ public class OVRPlayerController : MonoBehaviour
 		// Compute this for key movement
 		float moveInfluence = Acceleration * 0.1f * MoveScale * MoveScaleMultiplier;
 
-		// Run!
-		if (dpad_move || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+		// Run! -- Left shift only. Right shift is for crouch.
+		if (dpad_move || Input.GetKey(KeyCode.LeftShift)) // || Input.GetKey(KeyCode.RightShift))
 			moveInfluence *= 2.0f;
 
 		// Jump!
-		if (Input.GetButtonDown("Jump")) {
-			Jump ();
-		}
+//		if (Input.GetButtonDown("Jump")) {
+//			Jump ();
+//		}
 
 		if (DirXform != null)
 		{
@@ -232,15 +232,17 @@ public class OVRPlayerController : MonoBehaviour
 				MoveThrottle += DirXform.TransformDirection(Vector3.right * moveInfluence * transform.lossyScale.x) * BackAndSideDampen;
 		}
 
-		bool curHatLeft = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.LeftShoulder);
-
+		//bool curHatLeft = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.LeftShoulder);
+		bool curHatLeft = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.X);
+		
 		if (curHatLeft && !prevHatLeft)
 			YRotation -= RotationRatchet;
 
 		prevHatLeft = curHatLeft;
 
-		bool curHatRight = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.RightShoulder);
-
+		//bool curHatRight = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.RightShoulder);
+		bool curHatRight = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.B);
+		
 		if(curHatRight && !prevHatRight)
 			YRotation += RotationRatchet;
 
@@ -255,8 +257,9 @@ public class OVRPlayerController : MonoBehaviour
 
 		float rotateInfluence = SimulationRate * Time.deltaTime * RotationAmount * RotationScaleMultiplier;
 
-		if (!SkipMouseRotation)
-			YRotation += Input.GetAxis("Mouse X") * rotateInfluence * 3.25f;
+		// Disable, since we mapped MouseX to the right thumbstick
+//		if (!SkipMouseRotation)
+//			YRotation += Input.GetAxis("Mouse X") * rotateInfluence * 3.25f;
 
 		moveInfluence = SimulationRate * Time.deltaTime * Acceleration * 0.1f * MoveScale * MoveScaleMultiplier;
 
@@ -286,9 +289,9 @@ public class OVRPlayerController : MonoBehaviour
 					* DirXform.TransformDirection(Vector3.right * moveInfluence) * BackAndSideDampen;
 		}
 
-		float rightAxisX = OVRGamepadController.GPC_GetAxis(OVRGamepadController.Axis.RightXAxis);
-
-		YRotation += rightAxisX * rotateInfluence;
+		// Turn using the right thumbstick
+//		float rightAxisX = OVRGamepadController.GPC_GetAxis(OVRGamepadController.Axis.RightXAxis);
+//		YRotation += rightAxisX * rotateInfluence;
 
         DirXform.rotation = Quaternion.Euler(0.0f, YRotation, 0.0f);
 		transform.rotation = DirXform.rotation;
