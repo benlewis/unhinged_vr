@@ -80,7 +80,7 @@ public class OVRPlayerController : MonoBehaviour
 	/// <summary>
 	/// If true, each OVRPlayerController will use the player's physical height.
 	/// </summary>
-	public bool useProfileHeight = true;
+	public bool useProfileHeight = false;
 
 	protected CharacterController Controller = null;
 	protected OVRCameraRig CameraController = null;
