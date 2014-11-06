@@ -15,6 +15,9 @@ public class HelpSelectableObject : SelectableObject {
 		textObject.SetActive(true);
 		foreach (Transform t in textObject.transform) {
 			t.gameObject.SetActive(true);
+			foreach (Transform u in t.transform) {
+				u.gameObject.SetActive(true);
+			}
 		}
 	}
 	
