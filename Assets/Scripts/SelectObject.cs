@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using InControl;
 
 [RequireComponent (typeof(AudioSource))]
 public class SelectObject : MonoBehaviour {
@@ -41,7 +42,9 @@ public class SelectObject : MonoBehaviour {
 			}
 		}
 		
-		if (Input.GetButtonDown("Fire1") && selectedObject != null) {
+		InputDevice input = InputManager.ActiveDevice;
+		
+		if (input.Action1 && selectedObject != null) {
 			if (selectSound)
 				audio.PlayOneShot(selectSound);
 								

@@ -6,17 +6,36 @@ public class ICFPSInputController : MonoBehaviour {
 
 	public GameObject player;
 	private CharacterMotorC motor;
+	
+	public bool useHMD = false;
+	public OVRCameraRig cameraController = null; 
+	
+	private float yRotation = 0.0f;
 
 	// Use this for initialization
 	public void Awake () {
 		motor = player.GetComponent<CharacterMotorC>();
+
+		if (useHMD && cameraController == null)
+			Debug.LogWarning ("useHMD turned on without camera rig");
 	}
 	
 	// Update is called once per frame
 	public void Update () {
-		InputDevice input = InputManager.ActiveDevice;
+		InputDevice input = InputManager.ActiveDevice;		
 		
-		// Get the input vector from kayboard or analog stick
+		if (input.Action4.WasPressed)
+			ResetOrientation();
+			
+		if (input.LeftBumper.WasPressed)
+			yRotation -= 45.0f;
+
+		if (input.RightBumper.WasPressed)
+			yRotation += 45.0f;
+			
+		transform.rotation = Quaternion.Euler(0.0f, yRotation, 0.0f);
+					
+		// Get the input vector from keyboard or analog stick
 		var directionVector = new Vector3(input.LeftStickX, 0, input.LeftStickY);
 		
 		if (directionVector != Vector3.zero) {
@@ -37,9 +56,19 @@ public class ICFPSInputController : MonoBehaviour {
 		}
 		
 		// Apply the direction to the CharacterMotor
-		motor.inputMoveDirection = transform.rotation * directionVector;
-		motor.inputJump = Input.GetButton("Jump");
+		
+		// TODO: Follow the camera rotation instead of transform rotation
+		Quaternion rotation = transform.rotation;
+		if (useHMD) {
+			float hmdY = cameraController.centerEyeAnchor.localRotation.eulerAngles.y;
+			rotation *= Quaternion.Euler(0.0f, hmdY, 0.0f);
+		}
+		
+		motor.inputMoveDirection = rotation * directionVector;
+		// motor.inputJump = Input.GetButton("Jump");
 	}
 
-
+	public void ResetOrientation() {
+		yRotation = 0.0f;
+	}
 }

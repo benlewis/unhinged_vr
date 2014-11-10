@@ -21,6 +21,7 @@ limitations under the License.
 
 using UnityEngine;
 using System.Collections.Generic;
+using InControl;
 
 /// <summary>
 /// Controls the player's movement in virtual reality.
@@ -177,24 +178,26 @@ public class OVRPlayerController : MonoBehaviour
 		if (HaltUpdateMovement)
 			return;
 
-		bool moveForward = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow);
-		bool moveLeft = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
-		bool moveRight = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
-		bool moveBack = Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow);
-
-		bool dpad_move = false;
-
-		if (OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.Up))
-		{
-			moveForward = true;
-			dpad_move   = true;
-
-		}
-		if (OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.Down))
-		{
-			moveBack  = true;
-			dpad_move = true;
-		}
+		InputDevice input = InputManager.ActiveDevice;
+		
+		if (input.Action4)
+			ResetOrientation();
+		
+		float leftAxisX = input.LeftStickX.Value;
+		float leftAxisY = input.LeftStickY.Value;
+		
+		if (Mathf.Abs (leftAxisX) < 0.6f)
+			leftAxisX = 0.0f;
+			
+		if (Mathf.Abs (leftAxisY) < 0.6f)
+			leftAxisY = 0.0f;
+				
+		Debug.Log ("Input X: " + leftAxisX + ", Y: " + leftAxisY );
+								
+		bool moveForward = leftAxisY > 0.0f;
+		bool moveLeft = leftAxisX < -0.0f;
+		bool moveRight = leftAxisX > 0.0f;
+		bool moveBack = leftAxisY < -0.0f;
 
 		MoveScale = 1.0f;
 
@@ -212,7 +215,7 @@ public class OVRPlayerController : MonoBehaviour
 		float moveInfluence = Acceleration * 0.1f * MoveScale * MoveScaleMultiplier;
 
 		// Run! -- Left shift only. Right shift is for crouch.
-		if (dpad_move || Input.GetKey(KeyCode.LeftShift)) // || Input.GetKey(KeyCode.RightShift))
+		if (input.LeftTrigger) // || Input.GetKey(KeyCode.RightShift))
 			moveInfluence *= 2.0f;
 
 		// Jump!
@@ -233,7 +236,7 @@ public class OVRPlayerController : MonoBehaviour
 		}
 
 		//bool curHatLeft = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.LeftShoulder);
-		bool curHatLeft = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.X);
+		bool curHatLeft = input.LeftBumper;
 		
 		if (curHatLeft && !prevHatLeft)
 			YRotation -= RotationRatchet;
@@ -241,19 +244,12 @@ public class OVRPlayerController : MonoBehaviour
 		prevHatLeft = curHatLeft;
 
 		//bool curHatRight = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.RightShoulder);
-		bool curHatRight = OVRGamepadController.GPC_GetButton(OVRGamepadController.Button.B);
+		bool curHatRight = input.RightBumper;
 		
 		if(curHatRight && !prevHatRight)
 			YRotation += RotationRatchet;
 
 		prevHatRight = curHatRight;
-
-		//Use keys to ratchet rotation
-		if (Input.GetKeyDown(KeyCode.Q))
-			YRotation -= RotationRatchet;
-
-		if (Input.GetKeyDown(KeyCode.E))
-			YRotation += RotationRatchet;
 
 		float rotateInfluence = SimulationRate * Time.deltaTime * RotationAmount * RotationScaleMultiplier;
 
@@ -264,27 +260,26 @@ public class OVRPlayerController : MonoBehaviour
 		moveInfluence = SimulationRate * Time.deltaTime * Acceleration * 0.1f * MoveScale * MoveScaleMultiplier;
 
 #if !UNITY_ANDROID // LeftTrigger not avail on Android game pad
-		moveInfluence *= 1.0f + OVRGamepadController.GPC_GetAxis(OVRGamepadController.Axis.LeftTrigger);
+		moveInfluence *= 1.0f + input.LeftTrigger;
 #endif
 
 		if(DirXform != null)
 		{
-			float leftAxisX = OVRGamepadController.GPC_GetAxis(OVRGamepadController.Axis.LeftXAxis);
-			float leftAxisY = OVRGamepadController.GPC_GetAxis(OVRGamepadController.Axis.LeftYAxis);
 
-			if(leftAxisY > 0.0f)
+
+			if(leftAxisY > 0.02f)
 	    		MoveThrottle += leftAxisY
 					* DirXform.TransformDirection(Vector3.forward * moveInfluence);
 
-			if(leftAxisY < 0.0f)
+			if(leftAxisY < -0.02f)
 	    		MoveThrottle += Mathf.Abs(leftAxisY)
 					* DirXform.TransformDirection(Vector3.back * moveInfluence) * BackAndSideDampen;
 
-			if(leftAxisX < 0.0f)
+			if(leftAxisX < -0.02f)
 	    		MoveThrottle += Mathf.Abs(leftAxisX)
 					* DirXform.TransformDirection(Vector3.left * moveInfluence) * BackAndSideDampen;
 
-			if(leftAxisX > 0.0f)
+			if(leftAxisX > 0.02f)
 				MoveThrottle += leftAxisX
 					* DirXform.TransformDirection(Vector3.right * moveInfluence) * BackAndSideDampen;
 		}

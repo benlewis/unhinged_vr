@@ -46,29 +46,42 @@ namespace KeyboardToGamepadProfile
 				},
 				new InputControlMapping
 				{
-					Handle = "AltFire",
-					Target = InputControlType.Action2,
-					Source = MouseButton2
+					Handle = "Rotate Left",
+					Target = InputControlType.LeftBumper,
+					// KeyCodeComboButton requires that all KeyCode params are down simultaneously.
+					Source = KeyCodeButton( KeyCode.Q )
 				},
 				new InputControlMapping
 				{
-					Handle = "Middle",
-					Target = InputControlType.Action3,
+					Handle = "Rotate Left",
+					Target = InputControlType.RightBumper,
+					// KeyCodeComboButton requires that all KeyCode params are down simultaneously.
+					Source = KeyCodeButton( KeyCode.E )
+				},
+				new InputControlMapping
+				{
+					Handle = "Accelerate - Keyboard",
+					Target = InputControlType.LeftTrigger,
+					Source = KeyCodeComboButton( KeyCode.LeftShift )
+				},
+				new InputControlMapping
+				{
+					Handle = "Accelerate - Mouse",
+					Target = InputControlType.LeftTrigger,
 					Source = MouseButton1
 				},
 				new InputControlMapping
 				{
-					Handle = "Jump",
-					Target = InputControlType.Action4,
-					Source = KeyCodeButton( KeyCode.Space )
+					Handle = "Crouch",
+					Target = InputControlType.RightTrigger,
+					Source = KeyCodeComboButton( KeyCode.LeftControl )
 				},
 				new InputControlMapping
 				{
-					Handle = "Combo",
-					Target = InputControlType.LeftBumper,
-					// KeyCodeComboButton requires that all KeyCode params are down simultaneously.
-					Source = KeyCodeComboButton( KeyCode.LeftAlt, KeyCode.Alpha1 )
-				},
+					Handle = "Reset",
+					Target = InputControlType.Action4,
+					Source = KeyCodeButton ( KeyCode.R )
+				}
 			};
 
 			AnalogMappings = new[]
@@ -110,14 +123,6 @@ namespace KeyboardToGamepadProfile
 					Handle = "Look Y",
 					Target = InputControlType.RightStickY,
 					Source = MouseYAxis,
-					Raw    = true,
-					Scale  = 0.1f
-				},
-				new InputControlMapping
-				{
-					Handle = "Look Z",
-					Target = InputControlType.ScrollWheel,
-					Source = MouseScrollWheel,
 					Raw    = true,
 					Scale  = 0.1f
 				}

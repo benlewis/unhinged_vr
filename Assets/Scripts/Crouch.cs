@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using InControl;
 
 public class Crouch : MonoBehaviour {
 
@@ -9,8 +10,9 @@ public class Crouch : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		InputDevice input = InputManager.ActiveDevice;
 		CharacterController cc = GetComponent<CharacterController>();
-		if (Input.GetButton("Crouch") || Input.GetAxis("Crouch") == -1.0f) {
+		if (input.RightTrigger) {
 			if (cc.height > crouchingHeight) {
 				float heightShift = Mathf.Min(Time.deltaTime / crouchTime * (standingHeight - crouchingHeight), 
 				                              cc.height - crouchingHeight);
