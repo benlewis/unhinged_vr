@@ -10,9 +10,11 @@ using System;
 [Serializable]
 public class qb_Template //: ScriptableObject
 {
-	public	bool	live = 					false; //Sets whether the template is active in the toolbar - allows blank with values but no active file
+	public	bool	live = 					false; //Sets whether the template is active in the toolbar - allows a blank with values but no active file
 	
 	public	string	brushName =				string.Empty;
+	
+	public	string	lastKnownAs	=			string.Empty;
 	
 #region Brush Settings Vars
 	public	float	brushRadius	=			0.5f;
@@ -77,7 +79,9 @@ public class qb_Template //: ScriptableObject
 	
 	public	bool	groupObjects =			false;
 	
-	public	int		groupIndex = 			0;
+	//public	int		groupIndex = 			0;
+	//groupName replaces group Index, indices don't make sense when groups can be created and destroyed, changing the index of the desired group for the template
+	public	string	groupName = 			string.Empty;
 #endregion
 
 #region Eraser Vars
@@ -86,8 +90,19 @@ public class qb_Template //: ScriptableObject
 	public 	bool	eraseBySelected =		false;
 #endregion
 	
-	public	qb_PrefabObject[] prefabGroup =	new qb_PrefabObject[0];
-	
 	public	bool 	dirty = 				false;
 	
+#region Live Vars 
+	public	qb_PrefabObject[] prefabGroup =	new qb_PrefabObject[0];
+	
+	public bool			active = 			false;	
+	
+	public int			selectedPrefabIndex =	-1;
+	
+	public qb_Stroke	curStroke;
+	
+	public qb_Group		curGroup;
+
+	public string		layerText = String.Empty; 
+#endregion	
 }

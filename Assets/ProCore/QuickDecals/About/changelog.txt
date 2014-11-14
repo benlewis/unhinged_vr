@@ -1,3 +1,9 @@
+-- QuickDecals 2.0.6 -
+
+# Bug Fixes
+	- Fix bug where instantiating prefabs in scene (runtime or editor) would not correctly initialize child decal mesh.
+	- Fix bug where instantiating prefabs in scene (runtime or editor) would not correctly initialize child decal material if textue not packed.
+
 -- QuicKDecals 2.0.5 -
 
 # Features

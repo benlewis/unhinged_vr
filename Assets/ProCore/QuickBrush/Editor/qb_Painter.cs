@@ -35,7 +35,7 @@ public class qb_Painter : EditorWindow
 		window.maxSize = new Vector2(284f,800f);
     }
 	
-	#region Variable Declarations
+#region Variable Declarations
 	static qb_Painter				window;
 	
 	static string 					directory;
@@ -46,25 +46,34 @@ public class qb_Painter : EditorWindow
 	
 	static bool						placementModifier = 	false;
 	
-	static SceneView.OnSceneFunc 	onSceneGUIFunc;
+	private bool					toolActive =			true;
 	
+	static SceneView.OnSceneFunc 	onSceneGUIFunc;
 	
 	static Texture2D				removePrefabXTexture_normal;
 	static Texture2D				removePrefabXTexture_hover;
 	static Texture2D				addPrefabTexture;
 	static Texture2D				addPrefabFieldTexture;
-	static Texture2D				selectPrefabCheckTexture_normal;
-	static Texture2D				selectPrefabCheckTexture_hover;
+	static Texture2D				selectPrefabCheckTexture_off;
+	static Texture2D				selectPrefabCheckTexture_on;
+	static Texture2D				selectPrefabCheckTexture_active;
 	static Texture2D				prefabFieldBackgroundTexture;
 	static Texture2D				brushIcon_Active;
 	static Texture2D				brushIcon_Inactive;
 	static Texture2D				eraserIcon_Active;
 	static Texture2D				eraserIcon_Inactive;
+	static Texture2D				brushIcon_Locked;
+	
 	static Texture2D				placementIcon_Active;
-	//static Texture2D				saveBrushIcon;
-	//static Texture2D				saveBrushIcon_hover;
 	static Texture2D				loadBrushIcon;
 	static Texture2D				loadBrushIcon_hover;
+	static Texture2D				loadBrushIconLarge;
+	static Texture2D				loadBrushIconLarge_hover;
+	static Texture2D				prefabPaneDropdownIcon_closed_normal;
+	static Texture2D				prefabPaneDropdownIcon_closed_active;
+	static Texture2D				prefabPaneDropdownIcon_open_normal;
+	static Texture2D				prefabPaneDropdownIcon_open_active;
+	
 	static Texture2D				saveIcon;				
 	static Texture2D				saveIcon_hover;
 	static Texture2D				clearBrushIcon;
@@ -73,99 +82,139 @@ public class qb_Painter : EditorWindow
 	static Texture2D				savedBrushIcon_Active;
 	static Texture2D				resetSliderIcon;
 	static Texture2D				resetSliderIcon_hover;
-	#endregion
 	
+	static Texture2D				templateActiveIcon_on;
+	static Texture2D				templateActiveIcon_off;
+	static Texture2D				templateActiveIcon_active;
 	
-	void OnEnable()
+	static Texture2D				templateDirtyAsterisk;
+	
+	static Texture2D				templateTabBackground;
+	static Texture2D				templateTabBackground_inactive;
+#endregion
+	
+#region Preference Vars
+	static bool prefsLoaded = false;
+	
+	static bool prefs_enableLog = true;
+	//static string prefs_directory = string.Empty; //The Directory in which templates are stored - should be validated - if invalid, create when template is saved
+#endregion
+	
+	public void OnEnable()
 	{
 		window = this;
 		onSceneGUIFunc = this.OnSceneGUI;
 		SceneView.onSceneGUIDelegate += onSceneGUIFunc;
 		
-		directory = AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this));		
+		directory = qb_Utility.GetHeadDirectory();		
 		
-		if(directory != string.Empty)
-		{
-			directory = directory.Replace("/Editor/qb_Painter.cs","");
-		}
-		
-		string skinPath = directory + "/Resources/Skin/";
-		
-		addPrefabTexture			=		Resources.LoadAssetAtPath(skinPath + "qb_addPrefabIcon.tga", typeof(Texture2D)) as Texture2D;
-		addPrefabFieldTexture		=		Resources.LoadAssetAtPath(skinPath + "qb_addPrefabField.tga", typeof(Texture2D)) as Texture2D;
-		removePrefabXTexture_normal	=		Resources.LoadAssetAtPath(skinPath + "qb_removePrefabXIcon_normal.tga", typeof(Texture2D)) as Texture2D;
-		removePrefabXTexture_hover 	=		Resources.LoadAssetAtPath(skinPath + "qb_removePrefabXIcon_hover.tga", typeof(Texture2D)) as Texture2D;
-		
-		selectPrefabCheckTexture_normal =	Resources.LoadAssetAtPath(skinPath + "qb_selectPrefabCheck_normal.tga", typeof(Texture2D)) as Texture2D;
-		selectPrefabCheckTexture_hover 	=	Resources.LoadAssetAtPath(skinPath + "qb_selectPrefabCheck_hover.tga", typeof(Texture2D)) as Texture2D;
-		prefabFieldBackgroundTexture 	=	Resources.LoadAssetAtPath(skinPath + "qb_prefabFieldBackground.tga", typeof(Texture2D)) as Texture2D;
-		
-		brushIcon_Active 		=			Resources.LoadAssetAtPath(skinPath + "qb_brushIcon_Active.tga", typeof(Texture2D)) as Texture2D;
-		brushIcon_Inactive 		=			Resources.LoadAssetAtPath(skinPath + "qb_brushIcon_Inactive.tga", typeof(Texture2D)) as Texture2D;
-		
-		eraserIcon_Active		=			Resources.LoadAssetAtPath(skinPath + "qb_eraserIcon_Active.tga", typeof(Texture2D)) as Texture2D;
-		eraserIcon_Inactive		=			Resources.LoadAssetAtPath(skinPath + "qb_eraserIcon_Inactive.tga", typeof(Texture2D)) as Texture2D;		
-		
-		placementIcon_Active	=			Resources.LoadAssetAtPath(skinPath + "qb_placementIcon_Active.tga", typeof(Texture2D)) as Texture2D;
-		
-		savedBrushIcon			=			Resources.LoadAssetAtPath(skinPath + "qb_SavedBrushIcon.tga", typeof(Texture2D)) as Texture2D;
-		savedBrushIcon_Active	=			Resources.LoadAssetAtPath(skinPath + "qb_SavedBrushIcon_Active.tga", typeof(Texture2D)) as Texture2D;
-		
-		//This 
-		//saveBrushIcon			=			Resources.LoadAssetAtPath(skinPath + "qb_SaveBrushIcon.tga", typeof(Texture2D)) as Texture2D;
-		//saveBrushIcon_hover		=			Resources.LoadAssetAtPath(skinPath + "qb_SaveBrushIcon_hover.tga", typeof(Texture2D)) as Texture2D;
-		loadBrushIcon			=			Resources.LoadAssetAtPath(skinPath + "qb_LoadBrushIcon.tga", typeof(Texture2D)) as Texture2D;
-		loadBrushIcon_hover		=			Resources.LoadAssetAtPath(skinPath + "qb_LoadBrushIcon_hover.tga", typeof(Texture2D)) as Texture2D;;
-		
-		saveIcon				=			Resources.LoadAssetAtPath(skinPath + "qb_SaveIcon.tga", typeof(Texture2D)) as Texture2D;
-		saveIcon_hover			=			Resources.LoadAssetAtPath(skinPath + "qb_SaveIcon_hover.tga", typeof(Texture2D)) as Texture2D;
-		
-		clearBrushIcon			= 			Resources.LoadAssetAtPath(skinPath + "qb_ClearBrushIcon.tga", typeof(Texture2D)) as Texture2D;
-		clearBrushIcon_hover	=			Resources.LoadAssetAtPath(skinPath + "qb_ClearBrushIcon_hover.tga", typeof(Texture2D)) as Texture2D;
-
-		resetSliderIcon			=			Resources.LoadAssetAtPath(skinPath + "qb_ResetSliderIcon.tga", typeof(Texture2D)) as Texture2D;
-		resetSliderIcon_hover	=			Resources.LoadAssetAtPath(skinPath + "qb_ResetSliderIcon_hover.tga", typeof(Texture2D)) as Texture2D;
-		
-		UpdateGroups();
-		
-	//	UpdateTemplateSignatures();
+		LoadTextures();
+		BuildStyles();
 		
 		EnableMenu();
-		ClearForm();
-		
 	}
 	
-	void OnDisable()
+	public void OnDisable()
 	{
 		DisableMenu();
 	}
-		
-	void ClearForm()
-	{
-		Repaint();
-	}
-	
+
 	void EnableMenu()
 	{
+		UpdateGroups();
+		LoadTempSlots();
+		LoadToolState();
+		UpdateAreActive();;
+		
 		brushDirection = true;
 		brushMode = BrushMode.Off;
-//		liveTemplate = new qb_Template();//ScriptableObject.CreateInstance<qb_Template>();//
+
+		ranEnable = true;
+		
 	}
 	
 	void DisableMenu()
 	{
 		brushDirection = true;
 		brushMode = BrushMode.Off;
-/*		brushSettingsFoldout = false;
-		sortingFoldout = false;
-		rotationFoldout = false;
-		positionFoldout = false;
-		scaleFoldout = false;
-		eraserFoldout = false;
-//		selectedPrefabIndex = -1;
-*/	
+		//DebugClearData();
+		
+		SaveTempSlots();
+		SaveToolState();
+	}
+
+	[PreferenceItem("QuickBrush")]
+	public static void PreferencesGUI()
+	{
+		// Load the preferences
+		if(!prefsLoaded)
+		{
+			LoadPreferences();
+		}
+		// Preferences GUI
+		prefs_enableLog = EditorGUILayout.Toggle("Enable QB Log Messages", prefs_enableLog);
+		
+		// Save the preferences
+		if(GUI.changed)
+		{
+			SavePreferences();
+		}
 	}
 	
+	static void LoadPreferences()
+	{
+		prefs_enableLog = EditorPrefs.GetBool ("QB_enableLog", true);
+		
+		prefsLoaded = true;
+	}
+	
+	static void SavePreferences()
+	{
+		EditorPrefs.SetBool("QB_enableLog", prefs_enableLog);
+	}
+	
+	private void SaveToolState()
+	{
+		EditorPrefs.SetInt("QB_templateIndex",liveTemplateIndex);
+	}
+	
+	private void LoadToolState()
+	{	//Debug.Log("Reloading Tool State!");
+		int tempTemplateIndex = EditorPrefs.GetInt("QB_templateIndex",-1);
+		int count = brushTemplates.Length;//EditorPrefs.GetInt("QB_templateCount",0);
+	
+		if(count != 0)
+		{
+			//Template Index Fallbacks Start
+			if(tempTemplateIndex == -1 || tempTemplateIndex >= count || window.brushTemplates[tempTemplateIndex] == null)
+			{
+				for(int i = 0; i < count; i++)
+				{
+					if(window.brushTemplates[i] != null)
+					{
+						tempTemplateIndex = i;
+						break;
+					}
+				}
+			}
+			//Template Index Fallbacks End
+		}
+		
+		else
+			tempTemplateIndex = -1;
+	
+		//if(tempTemplateIndex != -1)
+			window.SwitchToTab(tempTemplateIndex);
+	}
+	//Debug Function Only
+/*	private void DebugClearData()
+	{
+		for(int i = 0; i < 6;i++)
+		{
+			CloseTab(i);
+		}
+	}
+*/
 #region Foldouts
 	[SerializeField] private bool			brushSettingsFoldout = 	false;
 	[SerializeField] private bool			rotationFoldout = 		false;
@@ -173,55 +222,65 @@ public class qb_Painter : EditorWindow
 	[SerializeField] private bool			positionFoldout = 		false;
 	[SerializeField] private bool			sortingFoldout =		false;
 	[SerializeField] private bool			eraserFoldout = 		false;
+	[SerializeField] private bool			prefabPaneOpen =		false;
 #endregion
 
 #region Live Vars
 	//Templates
-//	[SerializeField] static qb_Template[]	testTemplates =			new qb_Template[6];
-	[SerializeField] private qb_Template[]	brushTemplates =		new qb_Template[6];
+	[SerializeField] private qb_Template[]	brushTemplates;// =		//new qb_Template[6];
 	[SerializeField] private qb_Template	liveTemplate =			new qb_Template();
-	[SerializeField] private int			templateIndex =			-1;
-	
+	[SerializeField] private int			liveTemplateIndex =		-1;
 	static qb_TemplateSignature[]			templateSignatures;
 	
-	private bool			clearSelection = 		true;
+	//Menu Scrolling
+	[SerializeField] private Vector2 		topScroll =				Vector2.zero;
 	
 	//Painting
 	static bool 			paintable =				false;			//set by the mouse raycast to control whether an object can be painted on
-	static qb_Stroke		curStroke;
 	static qb_Point			cursorPoint =			new qb_Point();
 	
 	//Groups
 	static List<qb_Group> 	groups = 				new List<qb_Group>();
 	static List<string>		groupNames = 			new List<string>();
 	
-	static qb_Group			curGroup;
+//	static qb_Group			curGroup;
 	static string			newGroupName = 			"";
 	
 	//Layers
-	private LayerMask 		layersMasked =			0;
+	//private LayerMask 		layersMasked =			0;
 	
 	//Prefab Section
 	private Vector2			prefabFieldScrollPosition;
 	private Object			newPrefab;
 	private Object			previousPrefab;
-	private List<int>		removalList;
-	private int				selectedPrefabIndex = 	-1;
-	
-	//Menu Scrolling
-	static Vector2 			topScroll =				Vector2.zero;
 
 	//Tool Tip
 	private string			curTip =				string.Empty;
 	private bool			drawCurTip =			false; //this is set false on each redraw and checked at the end of OnGUI - set by DoTipCheck if a control with a tip is currently moused over
-#endregion	
+#endregion
+
+#region OnGUI Variables
+	static Texture2D		previewTexture;
+	private bool			ranEnable	= 			false;
+//	private bool			builtStyles =			false;
+	
+	private bool			clearSelection = 		true;
+	static bool				prevPaintToLayer =		false;
+	static bool				prevPaintToSelection =	false;
+#endregion
 	
 	void OnGUI()
-	{
-		UpdateGroups();
-		BuildStyles();
+	{	
+		if(ranEnable == false)
+			OnEnable();
+		
+		//if(builtStyles == false)
+			BuildStyles();
+			
+			CaptureInput();
+			
 		drawCurTip = false;
-
+		
 		EditorGUILayout.Space();
 		
 	EditorGUILayout.BeginVertical(masterVerticalStyle,GUILayout.Width(280)); //Begin Master Vertical
@@ -233,172 +292,141 @@ public class qb_Painter : EditorWindow
 			switch(brushMode)
 			{
 				case BrushMode.Off:
-					if(brushDirection == true)
+					
+					if(toolActive == true)
 					{
-						brushIndicatorTexture = brushIcon_Inactive;
+						if(brushDirection == true)
+						{
+							brushIndicatorTexture = brushIcon_Inactive;
+						}
+						else //if(brushDirection == false)
+						{
+							brushIndicatorTexture = eraserIcon_Inactive;
+						}
 					}
 					
-					if(brushDirection == false)
-					{
-						brushIndicatorTexture = eraserIcon_Inactive;
-					}
+					else
+						brushIndicatorTexture = brushIcon_Locked;
 				break;
 				
 				case BrushMode.On:
-					
-				if(placementModifier)
-					brushIndicatorTexture = placementIcon_Active;
-
-				else
-				{
-					if(brushDirection == true)
+				
+					if(toolActive == true)
 					{
-						brushIndicatorTexture = brushIcon_Active;
+						if(placementModifier)
+							brushIndicatorTexture = placementIcon_Active;
+		
+						else
+						{
+							if(brushDirection == true)
+							{
+								brushIndicatorTexture = brushIcon_Active;
+							}
+							else //if(brushDirection == false)
+							{
+								brushIndicatorTexture = eraserIcon_Active;
+							}
+						}	
 					}
 					
-					if(brushDirection == false)
-					{
-						brushIndicatorTexture = eraserIcon_Active;
-					}
-				}
+					else
+						brushIndicatorTexture = brushIcon_Locked;
 				break;
 			}
-
-			GUILayout.Label(brushIndicatorTexture,picLabelStyle,GUILayout.Width(32),GUILayout.Height(32));
-			DoTipCheck("Brush On/Off Indicator");
+	
+			if(GUILayout.Button(brushIndicatorTexture,picLabelStyle,GUILayout.Width(32),GUILayout.Height(32)))
+			{
+				toolActive = !toolActive;
+				brushMode = BrushMode.Off;
+			}
+			DoTipCheck("Brush/Eraser Indicator & master on/off switch" + System.Environment.NewLine + "Click to turn QB on/off and free shortcut keys");
 			
 		EditorGUI.BeginDisabledGroup(true);
 			GUILayout.Label("Use Brush:" + System.Environment.NewLine + "Precise Place:" + System.Environment.NewLine + "Toggle Eraser:",tipLabelStyle,GUILayout.Width(90),GUILayout.Height(34)); DoTipCheck("Brush On/Off Indicator" + System.Environment.NewLine + "hold ctrl to paint");
 			GUILayout.Label("ctrl+click/drag mouse"+ System.Environment.NewLine + "ctrl+shift+click/drag mouse" + System.Environment.NewLine + "ctrl+x" ,tipLabelStyle,GUILayout.Width(146),GUILayout.Height(32)); DoTipCheck("Brush On/Off Indicator" + System.Environment.NewLine + "hold ctrl to paint");
 		EditorGUI.EndDisabledGroup();
 		EditorGUILayout.EndHorizontal(); // Brush Toggles Section End
+
+		#region Prefab Picker
+		EditorGUI.BeginDisabledGroup(liveTemplate.live == false);//Overall Disable Start
 		
-		
-		#region Prefab Picker	
-				List<Object> newPrefabs = new List<Object>(); 
-				removalList = new List<int>();
-		
-	EditorGUI.BeginDisabledGroup(liveTemplate.live == false);//Overall Disable Start
-		
+			EditorGUILayout.BeginHorizontal(prefabPanelCrop,GUILayout.Width(280));
+					
+			if(liveTemplate.prefabGroup.Length == 0)
+			{
+				EditorGUILayout.BeginVertical(GUILayout.Height(78));
+				PrefabDragBox(274, prefabAddField_Span, "Drag & Drop Prefabs Here");	DoTipCheck("Drag & Drop Prefab Here To Add");
+				EditorGUILayout.EndVertical();
+			}
+			
+			else
+			{
 				EditorGUILayout.BeginHorizontal();
+					
+					EditorGUILayout.BeginVertical();
+						PrefabDragBox(30, prefabAddField_Small, ""); DoTipCheck("Drag & Drop Prefab Here To Add");
 						
-				if(liveTemplate.prefabGroup.Length == 0)
-				{
-					EditorGUILayout.BeginVertical(GUILayout.Height(78));
-					newPrefabs = PrefabDragBox(274,addPrefabFieldTexture,"Drag & Drop Prefabs Here");	DoTipCheck("Drag & Drop Prefab Here To Add");
+						if(prefabPaneOpen == false)
+						{
+							EditorGUI.BeginDisabledGroup(liveTemplate.prefabGroup.Length < 4);
+							if(GUILayout.Button("",picButton_PrefabPaneDropdown_Closed,GUILayout.Height(16),GUILayout.Width(30)))
+							{
+								prefabPaneOpen = true;
+								prefabFieldScrollPosition = new Vector2(0,0);
+							} DoTipCheck("Expand Prefab Pane");
+							EditorGUI.EndDisabledGroup();
+						}
+
 					EditorGUILayout.EndVertical();
-				}
 				
-				else
+				EditorGUILayout.EndHorizontal();
+			
+				if(prefabPaneOpen == false) // Default Scrollable View
 				{
-					newPrefabs = PrefabDragBox(30,addPrefabTexture,"");		DoTipCheck("Drag & Drop Prefab Here To Add");
-				
-					prefabFieldScrollPosition = EditorGUILayout.BeginScrollView(prefabFieldScrollPosition,GUILayout.Height(78), GUILayout.Width(246));
+					prefabFieldScrollPosition = EditorGUILayout.BeginScrollView(prefabFieldScrollPosition,GUILayout.Height(78),GUILayout.Width(240) );//, GUILayout.Width(160));
 					EditorGUILayout.BeginHorizontal();
 					//Prefab Objects can be dragged or selected in this horizontal list
-			
 					for(int i = 0; i < liveTemplate.prefabGroup.Length; i++)
 					{
-					EditorGUI.BeginChangeCheck();
-
-						EditorGUILayout.BeginHorizontal(prefabFieldStyle,GUILayout.Height(60), GUILayout.Width(70));
-						
-						liveTemplate.prefabGroup[i].weight = GUILayout.VerticalSlider(liveTemplate.prefabGroup[i].weight,1f,0.001f,prefabAmountSliderStyle,prefabAmountSliderThumbStyle,GUILayout.Height(50)); DoTipCheck("Likelyhood that this object will be placed vs the others in the list");
-						
-					if(EditorGUI.EndChangeCheck())
-					{
-						liveTemplate.dirty = true;
+						PrefabTile(i);
 					}
-				
-						EditorGUILayout.BeginVertical();
-	
-	                    Texture2D previewTexture = null;
-				
-						#if UNITY_3_5
-							previewTexture =  EditorUtility.GetAssetPreview(liveTemplate.prefabGroup[i].prefab);
-						#else
-							previewTexture = AssetPreview.GetAssetPreview(liveTemplate.prefabGroup[i].prefab);
-	                    #endif
-	
-							prefabPreviewWindowStyle.normal.background = previewTexture;//previewTexture;
-				
-							GUILayout.Label("",prefabPreviewWindowStyle,GUILayout.Height(50),GUILayout.Width(50));
-							
-							Rect prefabButtonRect = GUILayoutUtility.GetLastRect();
-							Rect xControlRect = new Rect(prefabButtonRect.xMax - 14,prefabButtonRect.yMin,14,14);
-							
-							if(GUI.Button(xControlRect,"",prefabRemoveXStyle))
-							{	removalList.Add(i);
-								Event.current.Use();
-							} DoTipCheck("'Red X' = remove prefab from list" + System.Environment.NewLine + "'Green Check' = mark to place exclusively");
-							
-							Rect checkControlRect = new Rect(prefabButtonRect.xMax - 14,prefabButtonRect.yMax - 14,14,14);
-							
-							if(selectedPrefabIndex == i)
-								prefabSelectCheckStyle.normal.background = selectPrefabCheckTexture_hover;
-							
-							else
-								prefabSelectCheckStyle.normal.background = selectPrefabCheckTexture_normal;
-							
-							
-							if(GUI.Button(checkControlRect,"",prefabSelectCheckStyle))
-							{
-								if(selectedPrefabIndex != i)
-									selectedPrefabIndex = i;
-					
-								else
-									selectedPrefabIndex = -1;
-					
-								liveTemplate.dirty = true;
-								clearSelection = true;
-							} //DoTipCheck("Click to mark object as selected - it will be placed exclusively");
-							
-						EditorGUILayout.EndVertical();
-					
-						EditorGUILayout.EndHorizontal();
-					}
-			
 					EditorGUILayout.EndHorizontal();
 					EditorGUILayout.EndScrollView();
 				}
-		
-				EditorGUILayout.EndHorizontal();
-		
-			if(removalList.Count > 0)
-			{
-				foreach(int index in removalList)
-				{
-					if(selectedPrefabIndex > index)
-					{
-						selectedPrefabIndex -= 1;
-					}
-			
-					else if(selectedPrefabIndex == index)
-					{
-						selectedPrefabIndex = -1;
-					}
 				
-					ArrayUtility.RemoveAt(ref liveTemplate.prefabGroup,index);
-				}
-			
-				liveTemplate.dirty = true;
-				clearSelection = true;
-//				EditorUtility.SetDirty(prefabGroup);
-			}
-		
- 			if(newPrefabs.Count > 0)
-			{
-				foreach(Object newPrefab in newPrefabs)
+				else // Expanded Pane View
 				{
-					ArrayUtility.Add(ref liveTemplate.prefabGroup,new qb_PrefabObject(newPrefab,1f));
+					EditorGUILayout.BeginVertical();
+					EditorGUILayout.BeginHorizontal();
+						for(int i = 0; i < liveTemplate.prefabGroup.Length; i++)
+						{
+							if(i % 3 == 0)
+							{
+								EditorGUILayout.EndHorizontal();
+								EditorGUILayout.BeginHorizontal();
+							}
+							PrefabTile(i);
+						}
+					EditorGUILayout.EndHorizontal();
+					EditorGUILayout.EndVertical();
 				}
-//				added = true;
-//			    EditorUtility.SetDirty(prefabGroup);
+
 			}
-	
+			
+			EditorGUILayout.EndHorizontal();
+			
+			if(prefabPaneOpen == true)
+			{
+				if(GUILayout.Button("",picButton_PrefabPaneDropdown_Open,GUILayout.Height(16),GUILayout.Width(276)))
+				{
+					prefabPaneOpen = false;
+					prefabFieldScrollPosition = new Vector2(0,0);
+				} DoTipCheck("Collapse Prefab Pane to Scrollable");
+			}
+		
+		EditorGUILayout.Space();
 		#endregion
-		
-		
+
 		topScroll = EditorGUILayout.BeginScrollView(topScroll,GUILayout.Width(280));
 		EditorGUILayout.BeginVertical(GUILayout.Width(260));
 		
@@ -408,25 +436,23 @@ public class qb_Painter : EditorWindow
 			if(brushSettingsFoldout == true)
 			{
 			EditorGUI.BeginChangeCheck();
-
 			
                 EditorGUILayout.BeginVertical(menuBlockStyle,GUILayout.Width(260));
 								
 					EditorGUILayout.BeginHorizontal();
-						EditorGUILayout.LabelField("Brush Radius",GUILayout.Width(100)); DoTipCheck("The Size of the brush");
+						EditorGUILayout.LabelField("Brush Radius",sliderLabelStyle,GUILayout.Width(100)); DoTipCheck("The Size of the brush");
 						liveTemplate.brushRadius = EditorGUILayout.Slider(liveTemplate.brushRadius,liveTemplate.brushRadiusMin,liveTemplate.brushRadiusMax); DoTipCheck("The Size of the brush");
 					EditorGUILayout.EndHorizontal();
 			
 					EditorGUILayout.BeginHorizontal();
 						EditorGUILayout.LabelField("Min",GUILayout.Width(70)); DoTipCheck("Minimum Slider Value");
-						float tryRadiusMin = EditorGUILayout.FloatField(liveTemplate.brushRadiusMin,floatFieldCompressedStyle);  DoTipCheck("Minimum Slider Value");
+						float tryRadiusMin = EditorGUILayout.FloatField(liveTemplate.brushRadiusMin,floatFieldCompressedStyle); DoTipCheck("Minimum Slider Value");
 						liveTemplate.brushRadiusMin = tryRadiusMin < liveTemplate.brushRadiusMax ? tryRadiusMin : liveTemplate.brushRadiusMax;
 			
 						EditorGUILayout.LabelField("Max",GUILayout.Width(70)); DoTipCheck("Maximum Slider Value");
 						float tryRadiusMax = EditorGUILayout.FloatField(liveTemplate.brushRadiusMax,floatFieldCompressedStyle); DoTipCheck("Maximum Slider Value");
 						liveTemplate.brushRadiusMax = tryRadiusMax > liveTemplate.brushRadiusMin ? tryRadiusMax : liveTemplate.brushRadiusMin;
 					EditorGUILayout.EndHorizontal();
-			
 			
 					EditorGUILayout.BeginHorizontal();
 						EditorGUILayout.LabelField("Scatter Amount",GUILayout.Width(100)); DoTipCheck("How closely should scattering match brush radius");
@@ -469,21 +495,40 @@ public class qb_Painter : EditorWindow
 		{
 		EditorGUI.BeginChangeCheck();
 
-		#region Layers		
+		#region Layers
             EditorGUILayout.BeginVertical(menuBlockStyle,GUILayout.Width(260));
 				//A toggle determining whether to isolate painting to specific layers
+				prevPaintToLayer = liveTemplate.paintToLayer;
 				liveTemplate.paintToLayer = EditorGUILayout.Toggle("Paint to Layer", liveTemplate.paintToLayer,EditorStyles.toggle); DoTipCheck("Restrict painting to specific layers?");
+				
+				if(prevPaintToLayer != liveTemplate.paintToLayer)
+					UpdateCompoundLayerMask();
+				
 				//A dropdown where the user can check off which layers to paint to
 				EditorGUI.BeginDisabledGroup(!liveTemplate.paintToLayer);
-				liveTemplate.layerIndex = EditorGUILayout.MaskField("Choose Layers",liveTemplate.layerIndex,GetLayerList(),EditorStyles.layerMaskField); DoTipCheck("Choose the layers to paint onto");
-				layersMasked = liveTemplate.layerIndex;
-
+							
+				EditorGUILayout.BeginHorizontal();
+				
+					//string layerDisplayName = "Nothing";//string.empty;
+					EditorGUILayout.LabelField("Choose Layers", GUILayout.Width(146)); DoTipCheck("Choose the layers to paint onto");
+					
+					if(GUILayout.Button((liveTemplate.layerText).ToString(),groupMenuDropdownStyle,GUILayout.Width(102)))
+					{
+						RenderLayerMenu(Event.current);
+					}DoTipCheck("Choose the layers to paint onto");
+					
+				EditorGUILayout.EndHorizontal();
+				
 				EditorGUI.EndDisabledGroup();
 				
+				prevPaintToSelection = liveTemplate.paintToSelection;
 				liveTemplate.paintToSelection = EditorGUILayout.Toggle("Restrict to Selection", liveTemplate.paintToSelection); DoTipCheck("Restrinct painting to selected objects in the scene - stacks with Layer Settings");
-
+				
+				if(prevPaintToSelection != liveTemplate.paintToSelection)
+					UpdateCompoundPaintToSelection();
+				
 			EditorGUILayout.EndVertical();
-		#endregion	
+		#endregion
 			
 		#region Groups
             EditorGUILayout.BeginVertical(menuBlockStyle,GUILayout.Width(260));
@@ -491,49 +536,54 @@ public class qb_Painter : EditorWindow
 			liveTemplate.groupObjects = EditorGUILayout.Toggle("Group Placed Objects",liveTemplate.groupObjects); DoTipCheck("Parent placed objects to an in-scene group object?");
 			
 			EditorGUI.BeginDisabledGroup(!liveTemplate.groupObjects);
-			liveTemplate.groupIndex = EditorGUILayout.Popup("Choose Existing Group",liveTemplate.groupIndex,groupNames.ToArray()); DoTipCheck("Pick a previously created group already in the scene");
+
+			EditorGUILayout.BeginHorizontal();
 			
-		
-			if(groups.Count != 0)
-			{
-				if(groups.Count > liveTemplate.groupIndex)
-					curGroup = groups[liveTemplate.groupIndex];
+				EditorGUILayout.LabelField("Choose Existing Group",GUILayout.Width(146)); DoTipCheck("Choose a group that already exists in the scene");
 			
-				else
+				string curGroupName = "Nothing";
+				
+				if(liveTemplate.groupName != string.Empty)
+					curGroupName = liveTemplate.groupName;
+				
+				if(GUILayout.Button(curGroupName,groupMenuDropdownStyle, GUILayout.Width(102)))
 				{
-					liveTemplate.groupIndex = 0;
-					liveTemplate.groupObjects = false;
-				}
-			}
-			
+					RenderGroupMenu(Event.current);
+				} DoTipCheck("Choose a group that already exists in the scene");
+				
+			EditorGUILayout.EndHorizontal();
+						
 		if(EditorGUI.EndChangeCheck())
 		{
 			liveTemplate.dirty = true;
 		}
 			
-				EditorGUILayout.BeginHorizontal();
-					newGroupName = EditorGUILayout.TextField("Name New Group",newGroupName,GUILayout.Width(210)); DoTipCheck("Enter a name for a new group you'd like to add");
-			
-					EditorGUI.BeginDisabledGroup(newGroupName == "");
-						if(GUILayout.Button("Add",GUILayout.Width(38)))
+			EditorGUILayout.BeginHorizontal();
+				newGroupName = EditorGUILayout.TextField("Name New Group",newGroupName,GUILayout.Width(210)); DoTipCheck("Enter a name for a new group you'd like to add");
+				
+				EditorGUI.BeginDisabledGroup(newGroupName == "");
+					if(GUILayout.Button("Add",GUILayout.Width(38)))
+					{
+						clearSelection = true;
+						
+						if(GroupWithNameExists(newGroupName))
 						{
-							clearSelection = true;
-				
-							if(GroupWithNameExists(newGroupName))
-							{
-								EditorUtility.DisplayDialog("Group Name Conflict","A Group named '" + newGroupName + "' already exists. Please choose a different name for your new group." ,"Ok");
-								newGroupName = "";
-							}
-							else
-							{
-								CreateGroup(newGroupName);
-								newGroupName = "";
-							}
-				
-						}  DoTipCheck("Create your newly named group in the scene");
-					EditorGUI.EndDisabledGroup();
+							EditorUtility.DisplayDialog("Group Name Conflict","A Group named '" + newGroupName + "' already exists. Please choose a different name for your new group." ,"Ok");
+							newGroupName = "";
+						}
+						else
+						{
+							qb_Group newGroup = CreateGroup(newGroupName);
+							liveTemplate.groupName = newGroupName;
+							liveTemplate.curGroup = newGroup;
+							
+							newGroupName = "";
+						}
 			
-				EditorGUILayout.EndHorizontal();
+					} DoTipCheck("Create your newly named group in the scene");
+				EditorGUI.EndDisabledGroup();
+		
+			EditorGUILayout.EndHorizontal();
 			
 			EditorGUI.EndDisabledGroup();
 	
@@ -577,15 +627,11 @@ public class qb_Painter : EditorWindow
 				EditorGUILayout.BeginHorizontal();
 
                 EditorGUILayout.BeginVertical(menuBlockStyle,GUILayout.Width(260));
-			
-								picButtonStyle.normal.background = resetSliderIcon;
-								picButtonStyle.hover.background = resetSliderIcon_hover;
-			
+	
 						EditorGUILayout.BeginHorizontal();
 							EditorGUILayout.LabelField("Offset X",GUILayout.Width(106)); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the X axis");
-							//rotationRange.x = EditorGUILayout.Slider(rotationRange.x,0f,180f); DoTipCheck("Upper limit (in degrees) to randomly offset object rotation around the X axis");
 								EditorGUILayout.BeginHorizontal(saveIconContainerStyle);
-								if(GUILayout.Button("",picButtonStyle,GUILayout.Width(16),GUILayout.Height(16)))
+								if(GUILayout.Button("",picButton_ResetSlider,GUILayout.Width(16),GUILayout.Height(16)))
 								{	liveTemplate.rotationRangeMin.x = 0f;
 									liveTemplate.rotationRangeMax.x = 0f;
 									liveTemplate.dirty = true;
@@ -593,7 +639,6 @@ public class qb_Painter : EditorWindow
 
 								} DoTipCheck("Reset slider to 0");
 								EditorGUILayout.EndHorizontal();
-							//EditorGUILayout.LabelField(liveTemplate.rotationRangeMin.x.ToString("000"),GUILayout.Width(30)); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the X axis");
 							float inputRotMinX = (float)EditorGUILayout.IntField((int)liveTemplate.rotationRangeMin.x, GUILayout.Width(32));
 							liveTemplate.rotationRangeMin.x = inputRotMinX < liveTemplate.rotationRangeMax.x ? inputRotMinX : liveTemplate.rotationRangeMax.x; DoTipCheck("Limits (in degrees) to randomly offset object rotation around the X axis");
 								EditorGUILayout.MinMaxSlider(ref liveTemplate.rotationRangeMin.x,ref liveTemplate.rotationRangeMax.x,-180f,180); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the X axis");
@@ -601,14 +646,12 @@ public class qb_Painter : EditorWindow
 								liveTemplate.rotationRangeMax.x = (float)System.Math.Round(liveTemplate.rotationRangeMax.x,0);
 							float inputRotMaxX = (float)EditorGUILayout.IntField((int)liveTemplate.rotationRangeMax.x, GUILayout.Width(32));
 							liveTemplate.rotationRangeMax.x = inputRotMaxX > liveTemplate.rotationRangeMin.x ? inputRotMaxX : liveTemplate.rotationRangeMin.x; DoTipCheck("Limits (in degrees) to randomly offset object rotation around the X axis");						
-							//EditorGUILayout.LabelField(liveTemplate.rotationRangeMax.x.ToString("000"),GUILayout.Width(30)); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the X axis");
 						EditorGUILayout.EndHorizontal();
 						
 						EditorGUILayout.BeginHorizontal();
 							EditorGUILayout.LabelField("Offset Y (up)",GUILayout.Width(106)); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Y axis");
-							//rotationRange.y = EditorGUILayout.Slider(rotationRange.y,0f,180f); DoTipCheck("Upper limit (in degrees) to randomly offset object rotation around the Y axis");
 								EditorGUILayout.BeginHorizontal(saveIconContainerStyle);
-								if(GUILayout.Button("",picButtonStyle,GUILayout.Width(16),GUILayout.Height(16)))
+								if(GUILayout.Button("",picButton_ResetSlider,GUILayout.Width(16),GUILayout.Height(16)))
 								{	liveTemplate.rotationRangeMin.y = 0f;
 									liveTemplate.rotationRangeMax.y = 0f;
 									liveTemplate.dirty = true;
@@ -616,7 +659,6 @@ public class qb_Painter : EditorWindow
 
 								} DoTipCheck("Reset slider to 0");
 							EditorGUILayout.EndHorizontal();
-							//EditorGUILayout.LabelField(liveTemplate.rotationRangeMin.y.ToString("000"),GUILayout.Width(30)); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Y axis");
 							float inputRotMinY = (float)EditorGUILayout.IntField((int)liveTemplate.rotationRangeMin.y, GUILayout.Width(32));
 							liveTemplate.rotationRangeMin.y = inputRotMinY < liveTemplate.rotationRangeMax.y ? inputRotMinY : liveTemplate.rotationRangeMax.y; DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Y axis");		
 								EditorGUILayout.MinMaxSlider(ref liveTemplate.rotationRangeMin.y,ref liveTemplate.rotationRangeMax.y,-180f,180); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Y axis");
@@ -624,14 +666,12 @@ public class qb_Painter : EditorWindow
 								liveTemplate.rotationRangeMax.y = (float)System.Math.Round(liveTemplate.rotationRangeMax.y,0);
 							float inputRotMaxY = (float)EditorGUILayout.IntField((int)liveTemplate.rotationRangeMax.y, GUILayout.Width(32));
 							liveTemplate.rotationRangeMax.y = inputRotMaxY > liveTemplate.rotationRangeMin.y ? inputRotMaxY : liveTemplate.rotationRangeMin.y; DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Y axis");				
-							//EditorGUILayout.LabelField(liveTemplate.rotationRangeMax.y.ToString("000"),GUILayout.Width(30)); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Y axis");
 						EditorGUILayout.EndHorizontal();
 						
 						EditorGUILayout.BeginHorizontal();
 							EditorGUILayout.LabelField("Offset Z",GUILayout.Width(106)); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Z axis");
-							//rotationRange.z = EditorGUILayout.Slider(rotationRange.z,0f,180f); DoTipCheck("Upper limit (in degrees) to randomly offset object rotation around the Z axis");
 								EditorGUILayout.BeginHorizontal(saveIconContainerStyle);
-								if(GUILayout.Button("",picButtonStyle,GUILayout.Width(16),GUILayout.Height(16)))
+								if(GUILayout.Button("",picButton_ResetSlider,GUILayout.Width(16),GUILayout.Height(16)))
 								{	liveTemplate.rotationRangeMin.z = 0f;
 									liveTemplate.rotationRangeMax.z = 0f;
 									liveTemplate.dirty = true;
@@ -639,7 +679,6 @@ public class qb_Painter : EditorWindow
 				
 								} DoTipCheck("Reset slider to 0");
 								EditorGUILayout.EndHorizontal();
-							//EditorGUILayout.LabelField(liveTemplate.rotationRangeMin.z.ToString("000"),GUILayout.Width(30)); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Z axis");
 							float inputRotMinZ = (float)EditorGUILayout.IntField((int)liveTemplate.rotationRangeMin.z, GUILayout.Width(32));
 							liveTemplate.rotationRangeMin.z = inputRotMinZ < liveTemplate.rotationRangeMax.z ? inputRotMinZ : liveTemplate.rotationRangeMax.z; DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Z axis");					
 								EditorGUILayout.MinMaxSlider(ref liveTemplate.rotationRangeMin.z,ref liveTemplate.rotationRangeMax.z,-180f,180); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Z axis");
@@ -647,7 +686,6 @@ public class qb_Painter : EditorWindow
 								liveTemplate.rotationRangeMax.z = (float)System.Math.Round(liveTemplate.rotationRangeMax.z,0);
 							float inputRotMaxZ = (float)EditorGUILayout.IntField((int)liveTemplate.rotationRangeMax.z, GUILayout.Width(32));
 							liveTemplate.rotationRangeMax.z = inputRotMaxZ > liveTemplate.rotationRangeMin.z ? inputRotMaxZ : liveTemplate.rotationRangeMin.z; DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Z axis");									
-							//EditorGUILayout.LabelField(liveTemplate.rotationRangeMax.z.ToString("000"),GUILayout.Width(30)); DoTipCheck("Limits (in degrees) to randomly offset object rotation around the Z axis");
 
 						EditorGUILayout.EndHorizontal();
 			
@@ -678,7 +716,7 @@ public class qb_Painter : EditorWindow
 					EditorGUILayout.LabelField("Offset X", GUILayout.Width(130)); DoTipCheck("Offset final placement position along local X axis");
 					liveTemplate.positionOffset.x = EditorGUILayout.FloatField(liveTemplate.positionOffset.x); DoTipCheck("Offset final placement position along local X axis");
 				EditorGUILayout.EndHorizontal();
-				EditorGUILayout.BeginHorizontal();	
+				EditorGUILayout.BeginHorizontal();
 					EditorGUILayout.LabelField("Offset Y (Up/Down)", GUILayout.Width(130)); DoTipCheck("Offset final placement position along local Y axis");
 					liveTemplate.positionOffset.y = EditorGUILayout.FloatField(liveTemplate.positionOffset.y); DoTipCheck("Offset final placement position along local Y axis");
 				EditorGUILayout.EndHorizontal();
@@ -703,53 +741,53 @@ public class qb_Painter : EditorWindow
 		if(scaleFoldout == true)
 		{
 		EditorGUI.BeginChangeCheck();
-			
-				EditorGUILayout.BeginHorizontal();
+		
+			EditorGUILayout.BeginHorizontal();
 
-					liveTemplate.scaleUniform = EditorGUILayout.Toggle(liveTemplate.scaleUniform,toggleButtonStyle,GUILayout.Width(15)); DoTipCheck("Placed models are scaled the same on all axes");
-					GUILayout.Label("Uniform Scale"); DoTipCheck("Placed models are scaled the same on all axes");
+				liveTemplate.scaleUniform = EditorGUILayout.Toggle(liveTemplate.scaleUniform,toggleButtonStyle,GUILayout.Width(15)); DoTipCheck("Placed models are scaled the same on all axes");
+				GUILayout.Label("Uniform Scale"); DoTipCheck("Placed models are scaled the same on all axes");
+			
+			EditorGUILayout.EndHorizontal();
+				
+			EditorGUI.BeginDisabledGroup(!liveTemplate.scaleUniform);
+			
+				EditorGUILayout.BeginHorizontal(GUILayout.Width(260));
+
+                EditorGUILayout.BeginVertical(menuBlockStyle,GUILayout.Width(78));
+						
+						EditorGUILayout.LabelField(liveTemplate.scaleRandMinUniform.ToString("0.00") + " to " + liveTemplate.scaleRandMaxUniform.ToString("0.00"),GUILayout.Width(78)); DoTipCheck("Random Scaling Range Split Slider (Min/Max)");
+						EditorGUILayout.MinMaxSlider(ref liveTemplate.scaleRandMinUniform,ref liveTemplate.scaleRandMaxUniform,liveTemplate.scaleMin,liveTemplate.scaleMax); DoTipCheck("Random Scaling Range Split Slider (Min/Max)");
+						
+						liveTemplate.scaleRandMinUniform = (float)System.Math. Round(liveTemplate.scaleRandMinUniform,2);
+						liveTemplate.scaleRandMaxUniform = (float)System.Math.Round(liveTemplate.scaleRandMaxUniform,2);			
+						liveTemplate.scaleRandMinUniform = Mathf.Clamp(liveTemplate.scaleRandMinUniform,liveTemplate.scaleMin,liveTemplate.scaleMax);
+						liveTemplate.scaleRandMaxUniform = Mathf.Clamp(liveTemplate.scaleRandMaxUniform,liveTemplate.scaleMin,liveTemplate.scaleMax);
+				
+					if(liveTemplate.scaleUniform)
+					{	
+						liveTemplate.scaleRandMin = new Vector3(liveTemplate.scaleRandMinUniform,liveTemplate.scaleRandMinUniform,liveTemplate.scaleRandMinUniform);
+						liveTemplate.scaleRandMax = new Vector3(liveTemplate.scaleRandMaxUniform,liveTemplate.scaleRandMaxUniform,liveTemplate.scaleRandMaxUniform);
+					}
+				
+					EditorGUILayout.EndVertical();
+			
+			EditorGUI.EndDisabledGroup();
+
+                EditorGUILayout.BeginVertical(menuBlockStyle, GUILayout.Width(170), GUILayout.MaxWidth(170));
+						EditorGUILayout.BeginHorizontal();
+							EditorGUILayout.LabelField("Min",GUILayout.Width(108)); DoTipCheck("Slider Minimum Value");
+							liveTemplate.scaleMin = EditorGUILayout.FloatField(liveTemplate.scaleMin,floatFieldCompressedStyle); DoTipCheck("Slider Minimum Value");
+						EditorGUILayout.EndHorizontal();
+						EditorGUILayout.BeginHorizontal();
+							EditorGUILayout.LabelField("Max",GUILayout.Width(108)); DoTipCheck("Slider Maximum Value");
+							liveTemplate.scaleMax = EditorGUILayout.FloatField(liveTemplate.scaleMax,floatFieldCompressedStyle); DoTipCheck("Slider Maximum Value");
+						EditorGUILayout.EndHorizontal();
+		
+						liveTemplate.scaleMin = (float)System.Math.Round(liveTemplate.scaleMin,2);
+						liveTemplate.scaleMax = (float)System.Math.Round(liveTemplate.scaleMax,2);
+					EditorGUILayout.EndVertical();
 				
 				EditorGUILayout.EndHorizontal();
-					
-				EditorGUI.BeginDisabledGroup(!liveTemplate.scaleUniform);
-				
-					EditorGUILayout.BeginHorizontal(GUILayout.Width(260));
-
-                        EditorGUILayout.BeginVertical(menuBlockStyle,GUILayout.Width(78));
-							
-							EditorGUILayout.LabelField(liveTemplate.scaleRandMinUniform.ToString("0.00") + " to " + liveTemplate.scaleRandMaxUniform.ToString("0.00"),GUILayout.Width(78)); DoTipCheck("Random Scaling Range Split Slider (Min/Max)");
-							EditorGUILayout.MinMaxSlider(ref liveTemplate.scaleRandMinUniform,ref liveTemplate.scaleRandMaxUniform,liveTemplate.scaleMin,liveTemplate.scaleMax); DoTipCheck("Random Scaling Range Split Slider (Min/Max)");
-							
-							liveTemplate.scaleRandMinUniform = (float)System.Math.Round(liveTemplate.scaleRandMinUniform,2);
-							liveTemplate.scaleRandMaxUniform = (float)System.Math.Round(liveTemplate.scaleRandMaxUniform,2);			
-							liveTemplate.scaleRandMinUniform = Mathf.Clamp(liveTemplate.scaleRandMinUniform,liveTemplate.scaleMin,liveTemplate.scaleMax);
-							liveTemplate.scaleRandMaxUniform = Mathf.Clamp(liveTemplate.scaleRandMaxUniform,liveTemplate.scaleMin,liveTemplate.scaleMax);
-					
-						if(liveTemplate.scaleUniform)
-						{	
-							liveTemplate.scaleRandMin = new Vector3(liveTemplate.scaleRandMinUniform,liveTemplate.scaleRandMinUniform,liveTemplate.scaleRandMinUniform);
-							liveTemplate.scaleRandMax = new Vector3(liveTemplate.scaleRandMaxUniform,liveTemplate.scaleRandMaxUniform,liveTemplate.scaleRandMaxUniform);
-						}
-					
-						EditorGUILayout.EndVertical();
-				
-				EditorGUI.EndDisabledGroup();
-
-                        EditorGUILayout.BeginVertical(menuBlockStyle, GUILayout.Width(170), GUILayout.MaxWidth(170));
-							EditorGUILayout.BeginHorizontal();
-								EditorGUILayout.LabelField("Min",GUILayout.Width(108)); DoTipCheck("Slider Minimum Value");
-								liveTemplate.scaleMin = EditorGUILayout.FloatField(liveTemplate.scaleMin,floatFieldCompressedStyle); DoTipCheck("Slider Minimum Value");
-							EditorGUILayout.EndHorizontal();
-							EditorGUILayout.BeginHorizontal();
-								EditorGUILayout.LabelField("Max",GUILayout.Width(108)); DoTipCheck("Slider Maximum Value");
-								liveTemplate.scaleMax = EditorGUILayout.FloatField(liveTemplate.scaleMax,floatFieldCompressedStyle); DoTipCheck("Slider Maximum Value");
-							EditorGUILayout.EndHorizontal();
-			
-							liveTemplate.scaleMin = (float)System.Math.Round(liveTemplate.scaleMin,2);
-							liveTemplate.scaleMax = (float)System.Math.Round(liveTemplate.scaleMax,2);
-						EditorGUILayout.EndVertical();
-					
-					EditorGUILayout.EndHorizontal();
 		
 	//-------------------------
 				//EditorGUILayout.Space();
@@ -806,10 +844,10 @@ public class qb_Painter : EditorWindow
 					
 				EditorGUI.EndDisabledGroup();
 			
-		if(EditorGUI.EndChangeCheck())
-		{
-			liveTemplate.dirty = true;
-		}
+			if(EditorGUI.EndChangeCheck())
+			{
+				liveTemplate.dirty = true;
+			}
 		}
 		#endregion
 		
@@ -823,8 +861,8 @@ public class qb_Painter : EditorWindow
 
 			EditorGUILayout.BeginVertical(menuBlockStyle,GUILayout.Width(260));
 
-			liveTemplate.eraseByGroup =		EditorGUILayout.Toggle("Erase by Group", liveTemplate.eraseByGroup,EditorStyles.toggle);				DoTipCheck("Restrict Eraser to objects in currently selected group");
-			liveTemplate.eraseBySelected =	EditorGUILayout.Toggle("Erase selected Prefab", liveTemplate.eraseBySelected,EditorStyles.toggle);		DoTipCheck("Restrict Eraser to checked prefab");
+			liveTemplate.eraseByGroup =		EditorGUILayout.Toggle("Erase by Group", liveTemplate.eraseByGroup,EditorStyles.toggle); DoTipCheck("Restrict Eraser to objects in currently selected group");
+			liveTemplate.eraseBySelected =	EditorGUILayout.Toggle("Erase selected Prefab", liveTemplate.eraseBySelected,EditorStyles.toggle); DoTipCheck("Restrict Eraser to checked prefab");
 			
 			EditorGUILayout.EndVertical();
 			
@@ -846,10 +884,8 @@ public class qb_Painter : EditorWindow
 		EditorGUILayout.BeginVertical(GUILayout.Width(280));
 			
 			EditorGUILayout.BeginHorizontal(menuBlockStyle,GUILayout.Width(276),GUILayout.Height(22));
-				picButtonStyle.hover.background =	saveIcon_hover;
-				picButtonStyle.normal.background =	saveIcon;
 			
-				EditorGUILayout.LabelField("Name: ",GUILayout.Width(60));DoTipCheck("Name Template");
+				EditorGUILayout.LabelField("Name: ",GUILayout.Width(60)); DoTipCheck("Name Template");
 			
 				EditorGUI.BeginChangeCheck();
 				GUILayout.FlexibleSpace();
@@ -864,128 +900,330 @@ public class qb_Painter : EditorWindow
 				EditorGUILayout.BeginHorizontal(saveIconContainerStyle);
 				
 					EditorGUI.BeginDisabledGroup(liveTemplate.dirty == false);
-						if(GUILayout.Button("",picButtonStyle,GUILayout.Width(16),GUILayout.Height(16)))
+						if(GUILayout.Button("",picButton_SaveIcon,GUILayout.Width(16),GUILayout.Height(16)))
 						{
-							if(liveTemplate.brushName == string.Empty)
-								EditorUtility.DisplayDialog("File Name Not Set","A template file must be named before it can be saved","Ok");
-							
-							else
-							{
-								SaveSettings(liveTemplate);
-								liveTemplate.dirty = false;
-							}
+						//permutation moved to TrySaveTemplate
+							TrySaveTemplate(liveTemplate);
 			
 							clearSelection = true;
 					
-						}DoTipCheck("Save Template to File");
+						} DoTipCheck("Save Template to File");
 					EditorGUI.EndDisabledGroup();
 				
 				EditorGUILayout.EndHorizontal();
 			
 			EditorGUILayout.EndHorizontal();
-			
-			//EditorGUILayout.Space();
-			
+						
 		EditorGUI.EndDisabledGroup(); //Overall Disable End
 	
 			EditorGUILayout.BeginHorizontal(brushStripStyle,GUILayout.Width(276));
 				
-				for(int i = 0; i < 6; i++)
+			int count = brushTemplates.Length;
+			
+			if(count != 0)
+				for(int i = 0; i < count; i++)
 				{
+					if(i >= brushTemplates.Length)
+						continue;
+				
 					if(brushTemplates[i] != null)
 					{
 						if(brushTemplates[i].live == false)
 							brushTemplates[i] = null;
 					}
-				
-					EditorGUILayout.BeginVertical(brushSlotContainerStyle,GUILayout.Width(32)); //Begin Slot
 					
-						EditorGUILayout.BeginHorizontal();	//Begin Slot Operations Duo
+					string slotNum = (i + 1).ToString("00");
+					
+					if(liveTemplateIndex == i)
+					{
+						brushSlotContainerStyle.normal.background	= templateTabBackground;
+					}
+					else
+					{
+						brushSlotContainerStyle.normal.background	= templateTabBackground_inactive;
+					}
+					
+					EditorGUILayout.BeginVertical(brushSlotContainerStyle,GUILayout.Width(32),GUILayout.Height(48)); //Begin Tab
+					
+						EditorGUILayout.BeginHorizontal();	//Begin Tab Operations Duo - Load / Clear
 				
-								picButtonStyle.hover.background =	loadBrushIcon_hover;
-								picButtonStyle.normal.background =	loadBrushIcon;
-								if(GUILayout.Button("",picButtonStyle, GUILayout.Width(16), GUILayout.Height(16)))
-								{	
+								if(GUILayout.Button("",picButton_OpenFile, GUILayout.Width(16), GUILayout.Height(16)))
+								{
 									RenderTemplateMenu(Event.current, i);
 								
-								}DoTipCheck("Assign Template File to Slot" + (i + 1).ToString("00"));
+								} DoTipCheck("Assign Template File to Slot" + slotNum);
 								
 							EditorGUI.BeginDisabledGroup(brushTemplates[i] == null);
-				
-								picButtonStyle.hover.background =	clearBrushIcon_hover;
-								picButtonStyle.normal.background =	clearBrushIcon;
-				
-								if(GUILayout.Button("", picButtonStyle, GUILayout.Width(16), GUILayout.Height(16)))
+							
+								if(GUILayout.Button("", picButton_ClearSlot, GUILayout.Width(16), GUILayout.Height(16)))
 								{
-									ClearSlot(i);
+									TryCloseTab(i);
 									
-									if(templateIndex == i)
-									{
-										ClearLiveTemplate();
-										templateIndex = -1;
-									}
-					
-								}DoTipCheck("Clear Slot " + (i + 1).ToString("00"));
-					
+								} DoTipCheck("Clear Slot " + slotNum);
+								
 							EditorGUI.EndDisabledGroup();
-					
+						
 						EditorGUILayout.EndHorizontal();	//End Slot Operations Duo
-				
-				
+						
+						if(i >= brushTemplates.Length)
+							continue;
+										
 						EditorGUI.BeginDisabledGroup(brushTemplates[i] == null);// || brushTemplates[i].live == false);//!brushStateArray[i]);
 							
-							if(templateIndex != i)
+							if(liveTemplateIndex != i)
 							{
-								picButtonStyle.hover.background =	savedBrushIcon;
-								picButtonStyle.normal.background =	savedBrushIcon;
+								if(GUILayout.Button(slotNum, picButton_SlotIcon_InActive, GUILayout.Width(32), GUILayout.Height(32)))
+								{
+									SwitchToTab(i);
+								}
 							}
 							else
 							{
-								picButtonStyle.hover.background =	savedBrushIcon_Active;
-								picButtonStyle.normal.background =	savedBrushIcon_Active;
+								if(GUILayout.Button(slotNum, picButton_SlotIcon_Active, GUILayout.Width(32), GUILayout.Height(32)))
+								{
+									SwitchToTab(i);
+								}
 							}
-				
-							if(GUILayout.Button((i + 1).ToString("00"), picButtonStyle, GUILayout.Width(32), GUILayout.Height(32)))
-							{
-								SwitchToTemplate(i);
-							}
-				
+							
 							if(clearSelection == true)
 							{
 								clearSelection = false;
 								EditorGUIUtility.hotControl = 0;
 	  							EditorGUIUtility.keyboardControl = 0;
 							}
-					
-						EditorGUI.EndDisabledGroup();
-					
-						//string slotName = brushTemplates[i] != null ? brushTemplates[i].brushName : "Empty";
-						
+							
 						string slotName = brushTemplates[i] == null ? "Empty" : brushTemplates[i].brushName == string.Empty ? "Unnamed Template" :  brushTemplates[i].brushName ;
-						DoTipCheck("Brush Slot " + (i + 1).ToString("00") + ": " + slotName);
+						DoTipCheck("Brush Slot " + slotNum + ": " + slotName);
+					
+					EditorGUI.EndDisabledGroup();
+					
+					EditorGUILayout.EndVertical();	//End Tab
+					
+				}
 				
+				count = brushTemplates.Length;
+				
+				//The "LOAD" faux-slot
+				if(count < 6)
+				{
+					brushSlotContainerStyle.normal.background	= templateTabBackground_inactive;
+					EditorGUILayout.BeginVertical(brushSlotContainerStyle,GUILayout.Width(32),GUILayout.Height(48)); //Begin Tab
+					
+						EditorGUILayout.BeginHorizontal(GUILayout.Width(32),GUILayout.Height(16));	//Begin Tab Operations Duo - FILLER in this case
+							EditorGUILayout.Space();
+						EditorGUILayout.EndHorizontal();
+						
+						EditorGUILayout.BeginHorizontal();	//Begin Slot Operations Duo
+
+							if(GUILayout.Button("",picButton_OpenFileLarge, GUILayout.Width(32), GUILayout.Height(32)))
+							{
+								RenderTemplateMenu(Event.current, count);
+							}
+						EditorGUILayout.EndHorizontal();
+					
 					EditorGUILayout.EndVertical();	//End Slot
 				}
 				
-			EditorGUILayout.EndHorizontal();
+				EditorGUILayout.EndHorizontal();
+		
+				//Tab Active Strip
+				EditorGUILayout.BeginHorizontal(GUILayout.Height(24),GUILayout.Width(276));
+					EditorGUILayout.BeginHorizontal(GUILayout.Height(24),GUILayout.Width(1));
+					EditorGUILayout.Space();
+					EditorGUILayout.EndHorizontal();
+				
+				for(int i = 0; i < count; i++)
+				{
+					//Template Checkboxes
+					if(i == liveTemplateIndex)
+					{
+						picButton_TemplateActive.normal.background = templateActiveIcon_active;
+						picButton_TemplateActive.hover.background = templateActiveIcon_active;
+					}
+					
+					else
+					{
+						if(brushTemplates[i].active == false)
+						{
+							picButton_TemplateActive.normal.background = templateActiveIcon_off;
+							picButton_TemplateActive.hover.background = templateActiveIcon_off;
+						}
+						else
+						{
+							picButton_TemplateActive.normal.background = templateActiveIcon_on;
+							picButton_TemplateActive.hover.background = templateActiveIcon_on;
+						}
+					}
+					
+					EditorGUILayout.BeginHorizontal(slotActiveContainerStyle);//, GUILayout.Width(32), GUILayout.Height(16));
+						
+						if(brushTemplates[i].dirty)
+						{
+							window.picButton_TemplateDirty.hover.background		=	templateDirtyAsterisk;
+							window.picButton_TemplateDirty.normal.background	=	templateDirtyAsterisk;
+							window.picButton_TemplateDirty.active.background	=	templateDirtyAsterisk;
+						}
+						else
+						{
+							window.picButton_TemplateDirty.hover.background		=	null;
+							window.picButton_TemplateDirty.normal.background	=	null;
+							window.picButton_TemplateDirty.active.background	=	null;
+									
+						}
+						
+							GUILayout.Label("",picButton_TemplateDirty,GUILayout.Width(16), GUILayout.Height(16));
+			
+						if(GUILayout.Button("", picButton_TemplateActive, GUILayout.Width(16), GUILayout.Height(16)))
+						{
+							brushTemplates[i].active = !brushTemplates[i].active;
+							UpdateAreActive();
+							UpdateCompoundLayerMask();
+							UpdateCompoundPaintToSelection();
+							window.Repaint();
+						} DoTipCheck("Toggle Template in slot '" + i + "' Active/Inactive." + " If no slot is checked, the currently selected slot is active");
+						//End Template Checkboxes
+						
+					EditorGUILayout.EndHorizontal();
+				}
+				
+				EditorGUILayout.Space(); //filler
+				
+				EditorGUILayout.EndHorizontal();
+				//End Tab Active Strip
+			
+		EditorGUILayout.BeginVertical(GUILayout.Width(274));
 			
 			if(GUILayout.Button("Restore Defaults"))
 			{
 				RestoreTemplateDefaults();
 				
-			}DoTipCheck("Restore Default Presets to the current template slot");
+			}DoTipCheck("Reset the currently selected slot to Default preset");
 			
 			string tipToDraw = drawCurTip ? curTip : string.Empty;
 				
 			EditorGUILayout.HelpBox(tipToDraw,MessageType.Info);
 		
+		EditorGUILayout.EndHorizontal();
+		
 			EditorGUILayout.EndVertical();
 			
 		EditorGUILayout.EndVertical();//Master Vertical End
 		#endregion
-		
-	Repaint();
 
+		//EditorUtility.SetDirty(this);
+	}
+	
+	void PrefabTile(int i)
+	{
+		EditorGUI.BeginChangeCheck();
+		
+		EditorGUILayout.BeginHorizontal(prefabFieldStyle,GUILayout.Height(60), GUILayout.Width(70));
+		
+		liveTemplate.prefabGroup[i].weight = GUILayout.VerticalSlider(liveTemplate.prefabGroup[i].weight,1f,0.001f,prefabAmountSliderStyle,prefabAmountSliderThumbStyle,GUILayout.Height(50)); DoTipCheck("Likelyhood that this object will be placed vs the others in the list");
+		
+		if(EditorGUI.EndChangeCheck())
+		{
+			liveTemplate.dirty = true;
+		}
+		
+		EditorGUILayout.BeginVertical();
+		
+		//Get Prefab Preview
+		//previewTexture = null;
+		previewTexture = liveTemplate.prefabGroup[i].iconTexture;
+		
+		GUILayout.Label(previewTexture,prefabPreviewWindowStyle,GUILayout.Height(50),GUILayout.Width(50));
+		
+		Rect prefabButtonRect = GUILayoutUtility.GetLastRect();
+		Rect xControlRect = new Rect(prefabButtonRect.xMax - 14,prefabButtonRect.yMin,14,14);
+		
+		if(GUI.Button(xControlRect,"",picButton_PrefabX))
+		{	
+			RemovePrefab(i);
+			Event.current.Use();
+		} DoTipCheck("'Red X' = remove prefab from list" + System.Environment.NewLine + "'Green Check' = mark to place exclusively");
+		
+		Rect checkControlRect = new Rect(prefabButtonRect.xMax - 14,prefabButtonRect.yMax - 14,14,14);
+		
+		if(liveTemplate.selectedPrefabIndex == i)
+		{	//prefabSelectedTexture = selectPrefabCheckTexture_hover;
+			picButton_PrefabCheck.normal.background = selectPrefabCheckTexture_on;
+			picButton_PrefabCheck.hover.background = selectPrefabCheckTexture_on;
+		}
+		else
+		{	//picButton_PrefabCheck. = selectPrefabCheckTexture_normal;
+			picButton_PrefabCheck.normal.background = selectPrefabCheckTexture_off;
+			picButton_PrefabCheck.hover.background = selectPrefabCheckTexture_off;
+		}
+		
+		if(GUI.Button(checkControlRect,"",picButton_PrefabCheck))
+		{
+			if(liveTemplate.selectedPrefabIndex != i)
+				liveTemplate.selectedPrefabIndex = i;
+			
+			else
+				liveTemplate.selectedPrefabIndex = -1;
+			
+			liveTemplate.dirty = true;
+			clearSelection = true;
+		} DoTipCheck("'Green Check' = mark object as selected - it will be placed exclusively");
+		
+		EditorGUILayout.EndVertical();
+		
+		EditorGUILayout.EndHorizontal();
+	}
+	
+	//static List<Object> PrefabDragBox(int width,GUIStyle style, string text)
+	static void PrefabDragBox(int width, GUIStyle style, string text)			
+	{
+		List<Object> draggedObjects = new List<Object>();
+		
+		// Draw the controls
+		
+		//prefabAddButtonStyle.normal.background = texture;
+		
+		//GUILayout.Label(text,texture,prefabAddButtonStyle,GUILayout.Width(width),GUILayout.MinWidth(width),GUILayout.Height(60),GUILayout.MinHeight(60));		
+		GUILayout.Label(text,style,GUILayout.Width(width),GUILayout.MinWidth(width),GUILayout.Height(60),GUILayout.MinHeight(60));
+		
+		Rect lastRect = GUILayoutUtility.GetLastRect();
+		
+		// Handle events
+		Event evt = Event.current;
+		switch (evt.type)
+		{
+		case EventType.DragUpdated:
+			// Test against rect from last repaint
+			if (lastRect.Contains(evt.mousePosition))
+			{
+				// Change cursor and consume the event
+				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+				evt.Use();
+			}
+			break;
+			
+		case EventType.DragPerform:
+			// Test against rect from last repaint
+			if (lastRect.Contains(evt.mousePosition))
+			{
+				foreach(Object draggedObject in DragAndDrop.objectReferences)
+				{
+					if(draggedObject.GetType() == typeof(GameObject))
+					{
+						draggedObjects.Add(draggedObject);
+						window.liveTemplate.dirty = true;
+						window.clearSelection = true;
+					}
+				}
+				// Change cursor and consume the event and drag
+				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+				DragAndDrop.AcceptDrag();
+				evt.Use();
+				
+				AddPrefabList(draggedObjects);
+			}
+			break;
+		}
+		//return draggedObjects;
 	}
 	
 	static void DoTipCheck(string entry)
@@ -996,59 +1234,408 @@ public class qb_Painter : EditorWindow
 			window.drawCurTip = true;
 		}
 	}
+
+	private void RenderLayerMenu(Event curEvent)
+	{
+		GenericMenu menu = new GenericMenu();
+		string[] layerArray = GetLayerList();
+		
+		menu.AddItem(new GUIContent("Nothing"),false,LayerMenuItemCallback,-2);
+		
+		menu.AddItem(new GUIContent("Everything"),false,LayerMenuItemCallback,-1);
+		
+		menu.AddSeparator(string.Empty);
+		
+		bool selected = false;
+		for(int i = 0; i < 32; i++)
+		{
+			if(layerArray[i] != string.Empty)
+			{
+				selected = false;
+				
+				if( ((1 << i) & window.liveTemplate.layerIndex) == (1 << i) )
+					selected = true;
+
+				menu.AddItem(new GUIContent( layerArray[i] ) ,selected,LayerMenuItemCallback, (1 << i));
+			}
+		}
+		
+		menu.ShowAsContext();
+		
+		curEvent.Use();
+	}
 	
-	private void RenderTemplateMenu(Event curEvent, int slotIndex)
+	public void LayerMenuItemCallback(object obj)
+	{
+		int optionIndex = (int)obj;
+
+		switch(optionIndex)
+		{
+			case -2://"Nothing":
+				window.liveTemplate.layerIndex = 0;
+			break;
+			
+			case -1://"Everything":
+				for(int i = 0; i < 32; i++)
+				{
+					window.liveTemplate.layerIndex |= (1 << i);
+				}
+			break;
+			
+			default:
+				window.liveTemplate.layerIndex ^= optionIndex;
+			break;
+		}
+
+		UpdateLayers();
+		UpdateCompoundLayerMask();
+	}
+
+	//simultaneously refreshes the text used for the layer dropdown button, and un-sets masks for the un-named layers
+	static void UpdateLayers()
+	{
+		string layerText = string.Empty;
+		List<string> layersSelected = new List<string>();
+		
+		if(window.liveTemplate.layerIndex == 0)
+			layerText = "Nothing";
+			
+		else
+		{
+			int definedLayerCount = 0;
+			string layerName = string.Empty;
+			
+			for(int i = 0; i < 32; i++)
+			{
+				layerName = LayerMask.LayerToName(i);
+				
+				bool layerUndefined = layerName == string.Empty || layerName.Length == 0 || layerName == "";
+				bool layerIsSelected = ((1 << i) & window.liveTemplate.layerIndex) == (1 << i); 
+				
+				if(layerUndefined != true)
+				{
+					definedLayerCount++;
+				}
+				
+				if(layerIsSelected == true)
+				{
+					if(layerUndefined == true)
+					{
+						window.liveTemplate.layerIndex ^= (1 << i);
+					}
+					
+					else
+					{
+						layersSelected.Add(layerName);
+					}
+				}
+
+			}
+
+			if(layersSelected.Count == 1)
+				layerText = layersSelected[0];
+		
+			if(layersSelected.Count > 1)
+				layerText = "Mixed";
+				
+			if(layersSelected.Count == definedLayerCount)
+				layerText = "Everything";
+		}
+	
+		window.liveTemplate.layerText = layerText;
+		window.Repaint();
+	}
+	
+	private void RenderGroupMenu(Event curEvent)
+	{
+		UpdateGroups();
+		
+		int curIndex = GetGroupIndex(liveTemplate.groupName);
+		
+		GenericMenu menu = new GenericMenu();
+		bool isSelected = false;
+		
+		if(curIndex == -1)
+			isSelected = true;
+			
+		menu.AddItem(new GUIContent("Nothing"),isSelected,GroupMenuItemCallback,-1);
+		
+		menu.AddSeparator(string.Empty);
+			
+		for(int i = 0; i < groupNames.Count; i++)
+		{
+			isSelected = false;
+			
+			if(curIndex == i)
+				isSelected = true;
+				
+			menu.AddItem(new GUIContent(groupNames[i]),isSelected, GroupMenuItemCallback, i);
+		}
+		
+		menu.ShowAsContext();
+		
+		curEvent.Use();
+	}
+	
+	private int GetGroupIndex(string groupName)
+	{
+		int groupIndex = -1;
+		
+		if(groupName == null || groupName == string.Empty)
+			return -1;
+		
+		for(int i = 0; i < groupNames.Count; i++)
+		{
+			if(groupNames[i] == groupName)
+			{
+				groupIndex = i;
+				break;
+			}
+		}
+		
+		return groupIndex;
+	}
+	
+	private void GroupMenuItemCallback(object obj)
+	{
+		int groupIndex = (int)obj;
+		
+		if(groupIndex == -1)
+		{
+			liveTemplate.groupName = string.Empty;
+			liveTemplate.curGroup = null;
+		}
+		else
+		{
+			liveTemplate.groupName = groupNames[groupIndex];
+			liveTemplate.curGroup = groups[groupIndex];
+		}
+	}
+	
+	private void RenderTemplateMenu(Event curEvent, int tabIndex)
 	{
 		UpdateTemplateSignatures();
 
 		// Now create the menu, add items and show it
 		GenericMenu menu = new GenericMenu ();
 
-			menu.AddItem(new GUIContent("New Template"), false, TemplateMenuItemCallback, new KeyValuePair<int,int>(-1,slotIndex));
+		menu.AddItem(new GUIContent("New Template"), false, TemplateMenuItemCallback, new KeyValuePair<int,int>(-1,tabIndex));
+		
+		menu.AddSeparator(string.Empty);
 		
 		for(int i = 0; i < templateSignatures.Length; i++)
 		{
-			menu.AddItem(new GUIContent(templateSignatures[i].name), false, TemplateMenuItemCallback, new KeyValuePair<int,int>(i,slotIndex));
+			menu.AddItem(new GUIContent(templateSignatures[i].name), false, TemplateMenuItemCallback, new KeyValuePair<int,int>(i,tabIndex));
 		}
 	
-		menu.ShowAsContext ();
+		menu.ShowAsContext();
 
         curEvent.Use();
 	}
 	
 	private void TemplateMenuItemCallback(object obj)
-	{
+	{ 
 		KeyValuePair<int,int> pair = (KeyValuePair<int,int>)obj;
 		
-		int fileIndex = pair.Key;
-		int slotIndex = pair.Value;
-		
+		int fileIndex = pair.Key;	//The file's index in the dropDown
+		int tabIndex = pair.Value;	//index of the slot we want to load into
+		int count = brushTemplates.Length;
+			
+		//If the user selected "New Template"
 		if(fileIndex == -1)
 		{
-			qb_Template newTemplate = new qb_Template();// ScriptableObject.CreateInstance<qb_Template>();
-			brushTemplates[slotIndex] = newTemplate;
-			newTemplate.live = true;
+			//if this is the end tab
+			if(tabIndex == count)
+			{	ArrayUtility.Add(ref brushTemplates,null);
+			
+				qb_Template newTemplate = new qb_Template();
+				brushTemplates[tabIndex] = newTemplate;
+				newTemplate.live = true;
+			}
+			
+			else
+			{
+				if(brushTemplates[tabIndex].dirty == true)
+				{
+					int option = EditorUtility.DisplayDialogComplex("Template Has Changed", "The Template '" + brushTemplates[tabIndex].brushName + "' in the tab which you are trying to use has changed since it was last saved.", "Save and Close","Close W/O Saving","Cancel");
+					
+					switch(option)
+					{
+						case 0:
+							if(TrySaveTemplate(brushTemplates[tabIndex]))
+								goto case 1;						
+						break;
+					
+						case 1:
+						   qb_Template newTemplate = new qb_Template();
+						   brushTemplates[tabIndex] = newTemplate;
+						   newTemplate.live = true;				
+						break;
+						
+						case 2:
+						break;
+					}
+				}
+			}
 		}
 		
+		//If the user did select a template from the list
 		else
 		{
-			brushTemplates[slotIndex] = qb_Utility.LoadTemplate(templateSignatures[fileIndex].directory);
-		}		
-		
-		
-		SwitchToTemplate(slotIndex);
+			//here, we need to check if the requested template is already in one of the tabs
+			string fileName = templateSignatures[fileIndex].name;
+			
+			//The slot into which the file is already loaded (if it is)
+			int alreadyLoadedIndex = TemplateAlreadyOpen(fileName);
+			
+			//if the selected template is not already loaded
+			if(alreadyLoadedIndex == -1)
+			{			
+				if(tabIndex == count)
+				{	ArrayUtility.Add(ref brushTemplates,null);
+
+					brushTemplates[tabIndex] = qb_Utility.LoadFromDisk(templateSignatures[fileIndex].directory);
+					QBLog("Loaded template '" + fileName + "' into slot " + (tabIndex + 1).ToString("00"));
+				}
+				
+				else
+				{
+					if(brushTemplates[tabIndex].dirty == true)
+					{
+						int option = EditorUtility.DisplayDialogComplex("Template Has Changed", "The Template '" + brushTemplates[tabIndex].brushName + "' in the tab which you are trying to use has changed since it was last saved.", "Save and Close","Close W/O Saving","Cancel");
+						
+						switch(option)
+						{
+							case 0:
+								if(TrySaveTemplate(brushTemplates[tabIndex]))
+									goto case 1;						
+							break;
+							
+							case 1:
+								brushTemplates[tabIndex] = qb_Utility.LoadFromDisk(templateSignatures[fileIndex].directory);
+								QBLog("Loaded template '" + fileName + "' into slot " + (tabIndex + 1).ToString("00"));				
+							break;
+							
+							case 2:
+							break;
+						}
+					}
+					
+					else
+					{
+						brushTemplates[tabIndex] = qb_Utility.LoadFromDisk(templateSignatures[fileIndex].directory);
+						QBLog("Loaded template '" + fileName + "' into slot " + (tabIndex + 1).ToString("00"));	
+					}
+				}
+			}
+			
+			//if the selected template is already loaded
+			else
+			{
+				//If the tab index we are wanting is not the same as the index of the matching already loaded temaplate
+				if(tabIndex != alreadyLoadedIndex)
+				{
+					if(EditorUtility.DisplayDialog("Template Already Open", "This template '" + fileName + "' is already open in tab " + (alreadyLoadedIndex+1).ToString("00") + ". Would you like to move '" + fileName + "' to this tab?","Move","Cancel"))
+					{
+						//if this is the end tab - append a tab to the end, and close the tab where the template was alread loaded
+						if(tabIndex == count)
+						{
+							ArrayUtility.Add(ref brushTemplates,null);
+							brushTemplates[tabIndex] = brushTemplates[alreadyLoadedIndex];
+							
+							CloseTab(alreadyLoadedIndex);
+							tabIndex -= 1;
+						}
+						
+						else
+						{
+							qb_Template templateToSwap			=	brushTemplates[tabIndex]; //This may be null - it doesn't matter - basically the template to move out of the way
+							brushTemplates[tabIndex]			=	brushTemplates[alreadyLoadedIndex];
+							brushTemplates[alreadyLoadedIndex]	=	templateToSwap;
+							
+							if(templateToSwap == null)
+								CloseTab(alreadyLoadedIndex);
+							
+							string fName = fileName;
+							if(fName == string.Empty)
+								fName = "Unnamed"; 
+							
+							QBLog("Moved template '" + fName + "' from slot " + (alreadyLoadedIndex + 1).ToString("00") +" to slot " + (tabIndex + 1).ToString("00"));
+						}
+					}
+					
+					//if user canceled
+					else
+					{
+						//this whole else statement is here just to prevent from trying to switch to an index that's out of rage
+						if(tabIndex == count)
+							tabIndex -= 1;
+					}
+				}
+				
+				else
+				{
+					if(EditorUtility.DisplayDialog("Reload Template '" + fileName + "'?", "The template you are trying to load '" + fileName + "' is already open in this tab. Would you like to reload '" + fileName + "' from disk and lose any changes since last saving?","Reload","Cancel"))
+					{
+						brushTemplates[tabIndex] = qb_Utility.LoadFromDisk(templateSignatures[fileIndex].directory);
+						QBLog("Loaded template '" + fileName + "' into slot " + (tabIndex + 1).ToString("00"));
+					}
+				}
+				//else 
+				//do nothing - or maybe prompt user to see if he wants a reload from disk				
+			}
+			//if it is not then do go ahead with the load
+			
+			//if it is, either move the template to this slot, or if it is already in this slot then do nothing 
+			//- or prompt user to ask if he wants a to re-load from disk or keep current version. 
+		}
+		UpdateAreActive();
+		SwitchToTab(tabIndex);
 	}
 	
-	static private void DrawBrushGizmo( RaycastHit mouseRayHit)
+	private bool TemplateExistsOnDisk(string templateName)
+	{
+		UpdateTemplateSignatures();
+		
+		for(int i = 0; i < templateSignatures.Length; i++)
+		{
+			if(templateSignatures[i].name == templateName)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	private int TemplateAlreadyOpen(string templateName)
+	{
+		int count = brushTemplates.Length;
+	
+		for(int i = 0; i < count; i++)
+		{
+			if(brushTemplates[i] != null)
+			{	
+			 	if(brushTemplates[i].brushName == templateName)
+					return i;
+			}
+			
+			//else, we should probably clean the broken tab out
+			//but this hasn't ever happened so explore if it is even possible before accounting for it
+		}
+		
+		return -1;	
+	}
+	
+	static private void DrawBrushGizmo(RaycastHit mouseRayHit)
 	{
 		if(placing == false)
 		{
 			if(mouseRayHit.collider != null)
 			{
 				Handles.color = Color.white;
-				Handles.DrawWireDisc(mouseRayHit.point,mouseRayHit.normal,window.liveTemplate.brushRadius);
+				Handles.DrawWireDisc(mouseRayHit.point, mouseRayHit.normal, window.liveTemplate.brushRadius);
+				Handles.DrawLine(mouseRayHit.point, mouseRayHit.point + (mouseRayHit.normal * window.liveTemplate.brushRadius));
 				Handles.color = Color.blue;
-				Handles.DrawWireDisc(mouseRayHit.point,mouseRayHit.normal,window.liveTemplate.scatterRadius * window.liveTemplate.brushRadius);
+				Handles.DrawWireDisc(mouseRayHit.point, mouseRayHit.normal, window.liveTemplate.scatterRadius * window.liveTemplate.brushRadius);
 			}
 		}
 		
@@ -1074,10 +1661,14 @@ public class qb_Painter : EditorWindow
 
 	static bool placing;	//currently placing an object - ie have spawned object and not yet stopped modifying scale / rotation
 	static bool painting; 	//in stroke
+	
+	static bool ctrlWasDown = true;
+	static bool shiftWasDown = true;
 
 	public void OnSceneGUI(SceneView sceneView)
 	{
-		/* Rules pseudo code
+		/*
+		Rules pseudo code
 		//if ALT not down
 		//{
 			//if mouse click when shift down -		begin PlaceMode
@@ -1091,69 +1682,32 @@ public class qb_Painter : EditorWindow
 		//}
 		*/
 		
-		bool altDown = false;
-		bool shiftDown = false;
-		bool ctrlDown = false;
-//		bool xDown = false;
-
-		if(Event.current.control)
-		{
-			ctrlDown = true;
-			sceneView.Focus();
-		}
+		CaptureInput();
 		
-		if(ctrlDown == false)
-		{
-			brushMode = BrushMode.Off;
-			EndStroke();
-			EndPlaceStroke();
+		//dropout conditions
+		if(toolActive == false)
 			return;
-		}
 		
-		else
-			brushMode = BrushMode.On;
-		
-	//	if(xDown)
-	//		brushDirection = !brushDirection;
-		
+		if(brushMode ==  BrushMode.Off)
+			return;
 		
 		RaycastHit mouseRayHit = new RaycastHit();
-		mouseRayHit = DoMouseRaycast();		
+		if(mouseOverWindow == sceneView)
+		{
+			mouseRayHit = DoMouseRaycastMulti();//DoMouseRaycast();
+			DrawBrushGizmo(mouseRayHit);
+		}
 		
-		DrawBrushGizmo(mouseRayHit);
 		HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
 		
-		//Default Mode is Paint, from there we can 
-		if(Event.current.alt)
-		{
-			//modify mode to Camera Navigation
-			//if we are currently painting end stroke
-			//if we are currently placing commit
-			altDown = true;
-		}
-		
-		if(Event.current.shift) //might want to force end 
-		{
-			//modify mode to Place
-			shiftDown = true;
-			placementModifier = true;
-		}
-		
-		else 
-			placementModifier = false;
-		
-		if(GetKeyUp == KeyCode.X)
-		{
-			brushDirection = !brushDirection;
-		}
-				
+		Event curEvent = Event.current;
+
 		if(altDown == false)
 		{
-			switch(Event.current.type)
+			switch(curEvent.type)
 			{
-				
 				case EventType.mouseUp:
-					if(Event.current.button == 0)
+					if(curEvent.button == 0)
 					{
 						if(brushMode == BrushMode.On)
 						{
@@ -1171,20 +1725,20 @@ public class qb_Painter : EditorWindow
 				break;
 					
 				case EventType.mouseDown:
-					if(Event.current.button == 0)
-					{	
+					if(curEvent.button == 0)
+					{
 						if(brushMode == BrushMode.On)
 						{
 							if(!shiftDown) 
 							{
 								BeginStroke();
-							
+								
 								if(paintable)
 								{
 									Paint(mouseRayHit);
 									Event.current.Use();
 								}
-								Tools.current = Tool.None;
+								UnityEditor.Tools.current = UnityEditor.Tool.None;  
 							}
 							
 							else //shiftDown
@@ -1194,14 +1748,14 @@ public class qb_Painter : EditorWindow
 									BeginPlaceStroke();
 									Event.current.Use();
 								}
-								Tools.current = Tool.None;
+								UnityEditor.Tools.current = UnityEditor.Tool.None;
 							}
 						}
 					}
 				break;
 					
 				case EventType.mouseDrag:
-				if(Event.current.button == 0)
+				if(curEvent.button == 0)
 				{
 					if(brushMode == BrushMode.On)
 					{
@@ -1211,7 +1765,7 @@ public class qb_Painter : EditorWindow
 							//{
 								UpdatePlace(sceneView);
 								Event.current.Use();
-								Tools.current = Tool.None; //make sure needed?
+								UnityEditor.Tools.current = UnityEditor.Tool.None; //make sure needed?
 							//}
 						}
 					
@@ -1221,7 +1775,7 @@ public class qb_Painter : EditorWindow
 							{
 								Paint(mouseRayHit);
 								Event.current.Use();
-								Tools.current = Tool.None; //make sure needed?
+								UnityEditor.Tools.current = UnityEditor.Tool.None; //make sure needed?
 							}
 						}
 				
@@ -1241,73 +1795,265 @@ public class qb_Painter : EditorWindow
 		
 		//This repaint is important to make lines and indicators not hang around for more frames
 		sceneView.Repaint();
-
+	}
+	
+	static bool altDown = false;
+	static bool shiftDown = false;
+	static bool ctrlDown = false;
+	static bool xUpped = false;
+	
+	private void CaptureInput()
+	{
+		altDown = false;
+		shiftDown = false;
+		ctrlDown = false;
+		xUpped = false;
+		
+		if(toolActive == false)
+			return;
+		
+		Event curEvent = Event.current;
+		
+		
+		if(curEvent.keyCode == KeyCode.X && curEvent.rawType == EventType.KeyUp)
+			//if(curEvent.type == EventType.KeyUp && curEvent.keyCode == KeyCode.X)
+		{
+			xUpped = true;
+		}
+		
+		if(curEvent.control)
+		{
+			ctrlDown = true;
+			//sceneView.Focus(); // Pulls focus to the scene view, but may be responsible for bug where qb to takes over computers when ctrl is down
+		}
+		
+		if(shiftDown == false && shiftWasDown == true) 
+		{shiftWasDown = false;
+			
+			placementModifier = false;
+			window.Repaint();
+		}
+		
+		if(ctrlDown == false && ctrlWasDown == true)
+		{ctrlWasDown = false;
+			//shiftDown = false;
+			//shiftWasDown = false;
+			//placementModifier = false;
+			
+			brushMode = BrushMode.Off;
+			EndStroke();
+			EndPlaceStroke();
+			window.Repaint();
+			return;
+		}
+		
+		else if(ctrlDown == true && ctrlWasDown == false)
+		{ctrlWasDown = true;
+			
+			brushMode = BrushMode.On;
+			window.Repaint();
+		}
+		
+		//Toggle Brush vs Eraser
+		if(xUpped)
+		{
+			brushDirection = !brushDirection;
+			window.Repaint();
+		}
+		
+		//Default Mode is Paint, from there we can 
+		if(curEvent.alt)
+		{
+			//modify mode to Camera Navigation
+			//if we are currently painting end stroke
+			//if we are currently placing commit
+			altDown = true;
+		}
+		
+		if(curEvent.shift)
+			shiftDown = true;
+		
+		
+		if(shiftDown == true && shiftWasDown == false) //might want to force end 
+		{shiftWasDown = true;
+			
+			//modify mode to Place
+			placementModifier = true;
+			window.Repaint();
+		}
+		
+		//Default Mode is Paint, from there we can 
+		if(curEvent.alt)
+		{
+			//modify mode to Camera Navigation
+			//if we are currently painting end stroke
+			//if we are currently placing commit
+			altDown = true;
+		}
+		
+		if(curEvent.shift)
+			shiftDown = true;
+		
+		
+		if(shiftDown == true && shiftWasDown == false) //might want to force end 
+		{shiftWasDown = true;
+			
+			//modify mode to Place
+			placementModifier = true;
+			window.Repaint();
+		}
+		
+		//return;
 	}
 
 	static void BeginStroke()
 	{
-		curStroke = new qb_Stroke();
+		int count = window.brushTemplates.Length;
+		int curIndex = window.liveTemplateIndex;
+	
+		//if active or live
+		if(curIndex != -1 && curIndex < count)
+			BeginStroke(curIndex);
+		
+		if(areActive == true)
+			for(int i = 0; i < count; i++)
+			{
+				if(i == window.liveTemplateIndex)
+					continue;
+				
+				if(window.brushTemplates[i] == null) //Skip out if there is no template in this slot is null (but this shouldnt happen hopefully)
+					continue;
+				
+				if(window.brushTemplates[i].prefabGroup.Length == 0) //Skip out if there are no prefabs in the template
+					continue;
+				
+				if(window.brushTemplates[i].active == true)
+					BeginStroke(i);
+			}
+
 		painting = true;
+	}
+	
+	static void BeginStroke(int i)
+	{
+		curStrokes[i] = new qb_Stroke();
 	}
 	
 	static void EndStroke()
 	{
-		curStroke = null;
+		for(int i = 0; i < 6; i++)
+		{
+			curStrokes[i] = null;
+		}
+	
+		//curStroke = null;
 		painting = false;
 	}
 	
-	static void UpdateStroke()
-	{
-		//use the calculated stored cursor position to check distance from previous point on the stroke
-		
-		//if the calculated cursor position is at or beyond the BrushSpacingDistance from the last point in the stroke
-		//add a point to the stroke 
-		
-		if(curStroke.GetCurPoint() == null) //there is no cur point, we are starting the stroke 
-		{
-			qb_Point nuPoint = curStroke.AddPoint(cursorPoint.position,cursorPoint.upVector,cursorPoint.dirVector);
-			DoBrushIterration(nuPoint);
-		}
-		
-		else
-		{
-			float distanceFromLastPt = Vector3.Distance(cursorPoint.position, curStroke.GetCurPoint().position);
-			Vector3 strokeDirection = cursorPoint.position - curStroke.GetCurPoint().position;
+	//Per Brush UpdateStroke()
+	static qb_Stroke[] curStrokes = new qb_Stroke[6]; //this could be wrapped into qb_template
 
-			if(distanceFromLastPt >= window.liveTemplate.brushSpacing)
+	static bool areActive = false; //simple bool to show whether there are any templates marked as active
+	static void UpdateAreActive() //This should be run on enable, whenever active state is modified, and whenever tab operations are performed
+	{
+		int count = window.brushTemplates.Length;
+	
+		areActive = false;
+	
+		for(int i = 0; i < count; i++)
+		{
+			if(window.brushTemplates[i].active == true)
 			{
-				//Debug.DrawRay(cursorPoint.position,strokeDirection * strokeDirection.magnitude * -1f,Color.red);
-				qb_Point newPoint = curStroke.AddPoint(cursorPoint.position,cursorPoint.upVector,strokeDirection.normalized);
-				DoBrushIterration(newPoint);
+				areActive = true;
+				break;
 			}
 		}
 	}
 	
-	static void DoBrushIterration(qb_Point newPoint) // do whatever needs to be done on the bruh itteration
+	static void UpdateStroke() // this could be called up if active templates has any trues otherwise go with the default path if can do without doubling up functions 
+	{
+		int count = window.brushTemplates.Length;
+		int curIndex = window.liveTemplateIndex;
+		
+		//First do the liveTemplate
+		if(curIndex != -1 && curIndex < count)
+			UpdateStroke(curIndex);
+		
+		//Check if any templates are active
+		if(areActive == true)
+			for(int i = 0; i < count; i++)
+			{
+				//We already did the live template so skip it here
+				if(i == curIndex)
+					continue;
+				
+				if(window.brushTemplates[i] == null) //Skip out if there is no template in this slot is null (but this shouldnt happen hopefully)
+					continue;
+				
+				if(window.brushTemplates[i].prefabGroup.Length == 0) //Skip out if there are no prefabs in the template
+					continue;
+				
+				if(window.brushTemplates[i].active == true)
+					UpdateStroke(i);	
+			}
+	}
+
+	//New version of updateStroke which receives the template index to itterate
+	static void UpdateStroke(int i)
+	{
+		//use the calculated stored cursor position to check distance from previous point on the stroke
+		
+		//if the calculated cursor position is at or beyond the BrushSpacingDistance from the last point in the stroke
+		//add a point to the stroke
+		
+		if(curStrokes[i].GetCurPoint() == null) //there is no cur point, we are starting the stroke 
+		{
+			qb_Point nuPoint = curStrokes[i].AddPoint(cursorPoint.position,cursorPoint.upVector,cursorPoint.dirVector);
+			DoBrushIterration(nuPoint,i);
+		}
+		
+		else
+		{
+			float distanceFromLastPt = Vector3.Distance(cursorPoint.position, curStrokes[i].GetCurPoint().position);
+			Vector3 strokeDirection = cursorPoint.position - curStrokes[i].GetCurPoint().position;
+			
+			if(distanceFromLastPt >= window.brushTemplates[i].brushSpacing)
+			{
+				//Debug.DrawRay(cursorPoint.position,strokeDirection * strokeDirection.magnitude * -1f,Color.red);
+				qb_Point newPoint = curStrokes[i].AddPoint(cursorPoint.position,cursorPoint.upVector,strokeDirection.normalized);
+				DoBrushIterration(newPoint,i);
+			}
+		}
+	}
+
+	static void DoBrushIterration(qb_Point newPoint, int i) // do whatever needs to be done on the bruh itteration
 	{		
 		//if brush is positive
-			//do a paint itteration
+		//do a paint itteration
 		if(brushDirection == true)
-			PlaceGeo(newPoint);
-			
+			PlaceGeo(newPoint,i);
+		
 		//if brush is negative
-			//do an erase itteration
+		//do an erase itteration
 		else
-			EraseGeo(newPoint);
-			
+			EraseGeo(newPoint,i);
+		
 		//later, we'll need another case for a vertex color brush, probably just an additional layer rather than exclusive
-			
 	}
 	
 	static GameObject placingObject;
 	static Vector3 placingUpVector;
-		
+
 	static void BeginPlaceStroke()
 	{
-		curStroke = new qb_Stroke();
-		qb_Point nuPoint = curStroke.AddPoint(cursorPoint.position,cursorPoint.upVector,cursorPoint.dirVector);//cursorPoint.dirVector);
-
-		placingObject = PlaceObject(nuPoint);//PlaceGeo(nuPoint);
+		if(window.liveTemplateIndex == -1)
+			return;
+		
+		//single placement for now should only use the live template - like the old version
+		curStrokes[window.liveTemplateIndex] = new qb_Stroke();
+		qb_Point nuPoint = curStrokes[window.liveTemplateIndex].AddPoint(cursorPoint.position,cursorPoint.upVector,cursorPoint.dirVector);
+		
+		placingObject = PlaceObject(nuPoint,window.liveTemplateIndex);
 		
 		if(placingObject != null)
 		{
@@ -1315,10 +2061,13 @@ public class qb_Painter : EditorWindow
 			placingUpVector = placingObject.transform.up;
 		}
 	}
-	
+
 	static void EndPlaceStroke()
 	{
-		curStroke = null;
+		for(int i = 0; i < 6; i++)
+		{
+			curStrokes[i] = null;
+		}
 		
 		//release from placing mode
 		placing = false;
@@ -1370,7 +2119,7 @@ public class qb_Painter : EditorWindow
 	    Renderer[] renderers = topObject.GetComponentsInChildren<MeshRenderer>() as Renderer[];// as Renderer[];
 	    
 		foreach(Renderer render in renderers)
-		{
+		{	
 	    	//if (render != renderer) 
 				combinedBounds.Encapsulate(render.bounds);
 	    }
@@ -1400,7 +2149,6 @@ public class qb_Painter : EditorWindow
 		}
 	
 		return contact;
-
 	}
 	
 	static Vector3 GetFlattenedDirection(Vector3 worldVector, Vector3 flattenUpVector)
@@ -1411,13 +2159,13 @@ public class qb_Painter : EditorWindow
 		return diskDirection;
 	}
 		
-	static Object PickRandPrefab()
+	static Object PickRandPrefab(qb_Template  curTemplate)
 	{
 		
 		float totalWeight = 0f;
-		for(int i = 0; i < window.liveTemplate.prefabGroup.Length ; i++)
+		for(int i = 0; i < curTemplate.prefabGroup.Length ; i++)
 		{
-			totalWeight += window.liveTemplate.prefabGroup[i].weight;
+			totalWeight += curTemplate.prefabGroup[i].weight;
 		}
 		
 		float randomNumber = Random.Range(0f,totalWeight);
@@ -1425,19 +2173,18 @@ public class qb_Painter : EditorWindow
 		float weightSum = 0f;
 		int chosenIndex = 0;
 		
-		for(int x = 0; x < window.liveTemplate.prefabGroup.Length; x++)
+		for(int x = 0; x < curTemplate.prefabGroup.Length; x++)
 		{
-			weightSum += window.liveTemplate.prefabGroup[x].weight;
+			weightSum += curTemplate.prefabGroup[x].weight;
 
-			if(randomNumber < weightSum)//prefabGroup[x].weight)
+			if(randomNumber < weightSum)
 			{
 				chosenIndex = x;
 				break;
 			}
 		}
 		
-		return window.liveTemplate.prefabGroup[chosenIndex].prefab;
-
+		return curTemplate.prefabGroup[chosenIndex].prefab;
 	}			
 	
 	static void Paint(RaycastHit mouseRayHit) //This function is called when the stroke reaches its next step - We feed it the hit from the latest Raycast
@@ -1449,11 +2196,16 @@ public class qb_Painter : EditorWindow
 	}
 	
 	static Object objectToSpawn;
-	private static void PlaceGeo(qb_Point newPoint)
+	private static void PlaceGeo(qb_Point newPoint,int i)
 	{
+		qb_Template curTemplate = window.brushTemplates[i];  
+	
 	//-1 : if there are no prefabs in the queue. Do not paint
-		if(window.liveTemplate.prefabGroup.Length == 0)
+		if(curTemplate.prefabGroup.Length == 0)
 			return;
+
+//		if(window.liveTemplate.prefabGroup.Length == 0)
+//			return;
 
 	//0	: declare function variables
 		Vector3 spawnPosition = Vector3.zero;
@@ -1464,47 +2216,47 @@ public class qb_Painter : EditorWindow
 		Vector3 forwardVector = Vector3.forward; //blank filled - this value should never end up being used
 			
 	//1 : if there is more than one prefab in the queue, pick one using the randomizer
-		if(window.liveTemplate.prefabGroup.Length > 0)
+		if(curTemplate.prefabGroup.Length > 0)
 		{
-			if(window.selectedPrefabIndex != -1)
+			if(curTemplate.selectedPrefabIndex != -1)
 			{
-				if(window.liveTemplate.prefabGroup.Length > window.selectedPrefabIndex && window.liveTemplate.prefabGroup[window.selectedPrefabIndex] != null)
-					objectToSpawn = window.liveTemplate.prefabGroup[window.selectedPrefabIndex].prefab;
+				if(curTemplate.prefabGroup.Length > curTemplate.selectedPrefabIndex && curTemplate.prefabGroup[curTemplate.selectedPrefabIndex] != null)
+					objectToSpawn = curTemplate.prefabGroup[curTemplate.selectedPrefabIndex].prefab;
 			
 				else
 				{
-					window.selectedPrefabIndex = -1;
+					curTemplate.selectedPrefabIndex = -1;
 					return;
 				}
 			}
 			
 			else
-				objectToSpawn = PickRandPrefab();
+				objectToSpawn = PickRandPrefab(curTemplate);
 		}
 		
 		else
 			return;
 		
 	//2 : use the current point in the stroke to Get a random point around its upVector Axis
-		Vector3 castPosition = GetRandomPointOnDisk(newPoint.upVector);//Vector3.zero;
+		Vector3 castPosition = GetRandomPointOnDisk(newPoint.position, newPoint.upVector, curTemplate.brushRadius * curTemplate.scatterRadius);//Vector3.zero;
 		
 	//3 : use the random disk point to cast down along the upVector of the stroke point
 		Vector3 rayDir = -newPoint.upVector;
 		//RaycastHit hit;
 		
-		qb_RaycastResult result = DoPlacementRaycast(castPosition + (rayDir * -0.02f), rayDir);
-				
+		qb_RaycastResult result = DoPlacementRaycast(castPosition + (rayDir * -0.02f), rayDir, curTemplate);
+		
 	//4 : if cast successful, get cast point and normal - if cast is unsuccessful, return...<---
 		if(result.success == true)
 		{
 			spawnPosition = result.hit.point;
 			
-			if(window.liveTemplate.alignToNormal == true)
+			if(curTemplate.alignToNormal == true)
 			{
 				upVector = result.hit.normal;
 				placeUpVector = upVector;
 				
-				if(window.liveTemplate.flipNormalAlign)
+				if(curTemplate.flipNormalAlign)
 					placeUpVector *= -1f;
 					
 				forwardVector = GetFlattenedDirection(Vector3.forward,upVector);
@@ -1513,11 +2265,11 @@ public class qb_Painter : EditorWindow
 			forwardVector = GetFlattenedDirection(Vector3.forward,upVector);
 			
 			
-			if(window.liveTemplate.alignToStroke == true)
+			if(curTemplate.alignToStroke == true)
 			{
-				forwardVector = GetFlattenedDirection(curStroke.GetCurPoint().dirVector,upVector);
+				forwardVector = GetFlattenedDirection(curStrokes[i].GetCurPoint().dirVector,upVector);
 				
-				if(window.liveTemplate.flipStrokeAlign)
+				if(curTemplate.flipStrokeAlign)
 					forwardVector *= -1f;
 			}
 		}
@@ -1531,46 +2283,71 @@ public class qb_Painter : EditorWindow
 		newObject = PrefabUtility.InstantiatePrefab(objectToSpawn) as GameObject;
 		qb_Object marker = newObject.AddComponent<qb_Object>();//.hideFlags = HideFlags.HideInInspector;
 		marker.hideFlags = HideFlags.HideInInspector;
-		Undo.RegisterCreatedObjectUndo(newObject,"QB Place Object");
+		Undo.RegisterCreatedObjectUndo(newObject,"qbP");
 
 	//6 : use settings to scale, rotate, and place the object
 		spawnRotation = GetSpawnRotation(upVector,forwardVector);
 		
 		newObject.transform.position = spawnPosition;
 		newObject.transform.rotation = spawnRotation;
-		newObject.transform.position += (newObject.transform.right * window.liveTemplate.positionOffset.x) + (upVector.normalized * window.liveTemplate.positionOffset.y) + (newObject.transform.forward * window.liveTemplate.positionOffset.z);
+		newObject.transform.position += (newObject.transform.right * curTemplate.positionOffset.x) + (upVector.normalized * curTemplate.positionOffset.y) + (newObject.transform.forward * curTemplate.positionOffset.z);
 		Vector3 randomScale;
 		
-		if(window.liveTemplate.scaleUniform == true)
+		if(curTemplate.scaleUniform == true)
 		{	
-			float randomScaleUni = Random.Range(window.liveTemplate.scaleRandMinUniform,window.liveTemplate.scaleRandMaxUniform);
+			float randomScaleUni = Random.Range(curTemplate.scaleRandMinUniform,curTemplate.scaleRandMaxUniform);
 			randomScale = new Vector3(randomScaleUni,randomScaleUni,randomScaleUni);
 		}
 				
 		else
-			randomScale = new Vector3(Random.Range(window.liveTemplate.scaleRandMin.x,window.liveTemplate.scaleRandMax.x),Random.Range(window.liveTemplate.scaleRandMin.y,window.liveTemplate.scaleRandMax.y),Random.Range(window.liveTemplate.scaleRandMin.z,window.liveTemplate.scaleRandMax.z));
+			randomScale = new Vector3(Random.Range(curTemplate.scaleRandMin.x,curTemplate.scaleRandMax.x),Random.Range(curTemplate.scaleRandMin.y,curTemplate.scaleRandMax.y),Random.Range(curTemplate.scaleRandMin.z,curTemplate.scaleRandMax.z));
 		
 
 	//7 : If we have a group, add the object to the group
-		if(window.liveTemplate.groupObjects == true && curGroup != null)
+		if(curTemplate.groupObjects == true)
 		{
-			curGroup.AddObject(newObject);
+			bool doGroup = false;
+			//if group is missing - (either not yet assigned based on selection, or does not exist in this scene)
+			if(curTemplate.curGroup == null)
+			{
+				//if the group selected is not "nothing" - otherwise no grouping is done
+				if(curTemplate.groupName != string.Empty)
+				{
+					//the group has a name - check if group exists in scene
+					qb_Group testGroup = GetGroupWithName(curTemplate.groupName);
+					
+					//if it does exist, assign as curGroup
+					if(testGroup == null)
+						curTemplate.curGroup = CreateGroup(curTemplate.groupName);
+					
+					else
+						curTemplate.curGroup = testGroup;
+					
+					doGroup = true;
+				}
+			}
+			
+			else
+				doGroup = true;
+			
+			if(doGroup)
+				curTemplate.curGroup.AddObject(newObject);
 		}
 		
 	//8 : Scaling is applied after grouping to avoid float error
 		newObject.transform.localScale = new Vector3(randomScale.x,randomScale.y,randomScale.z);//Random.Range(scaleMin.x,scaleMax.x),Random.Range(scaleMin.y,scaleMax.y),Random.Range(scaleMin.z,scaleMax.z));//spawnScale;
 
-//		qb_ObjectContainer.GetInstance().AddObject(newObject);
-
 	}
 	
-	private static GameObject PlaceObject(qb_Point newPoint)
+	private static GameObject PlaceObject(qb_Point newPoint,int i)
 	{
+		qb_Template curTemplate = window.brushTemplates[i]; 
+		
 	//-1 : if there are no prefabs in the queue. Do not place
-		if(window.liveTemplate.prefabGroup.Length == 0)
+		if(curTemplate.prefabGroup.Length == 0)
 			return null;
 			
-		if(window.liveTemplate.prefabGroup[0] == null)
+		if(curTemplate.prefabGroup[0] == null)
 			return null;
 
 	//0	: declare function variables
@@ -1580,20 +2357,20 @@ public class qb_Painter : EditorWindow
 		Vector3 placeUpVector = Vector3.up;
 			//1 : if there is more than one prefab in the queue, pick one
 		
-		if(window.selectedPrefabIndex != -1)
+		if(curTemplate.selectedPrefabIndex != -1)
 		{
-			if(window.liveTemplate.prefabGroup.Length > window.selectedPrefabIndex && window.liveTemplate.prefabGroup[window.selectedPrefabIndex] != null)
-				objectToSpawn = window.liveTemplate.prefabGroup[window.selectedPrefabIndex].prefab;
+			if(curTemplate.prefabGroup.Length > curTemplate.selectedPrefabIndex && curTemplate.prefabGroup[curTemplate.selectedPrefabIndex] != null)
+				objectToSpawn = curTemplate.prefabGroup[curTemplate.selectedPrefabIndex].prefab;
 		
 			else
-				window.selectedPrefabIndex = -1;
+				curTemplate.selectedPrefabIndex = -1;
 				
 		}
 
 		else
 		{
-			if(window.liveTemplate.prefabGroup.Length > 0 && window.liveTemplate.prefabGroup[0] != null)
-				objectToSpawn = window.liveTemplate.prefabGroup[0].prefab;
+			if(curTemplate.prefabGroup.Length > 0 && curTemplate.prefabGroup[0] != null)
+				objectToSpawn = curTemplate.prefabGroup[0].prefab;
 			
 			else
 			{
@@ -1609,19 +2386,19 @@ public class qb_Painter : EditorWindow
 	//3 : use the random disk point to cast down along the upVector of the stroke point
 		Vector3 rayDir = -newPoint.upVector;
 		
-		qb_RaycastResult result = DoPlacementRaycast(castPosition, rayDir);
+		qb_RaycastResult result = DoPlacementRaycast(castPosition, rayDir, curTemplate);
 				
 	//4 : if cast successful, get cast point and normal - if cast is unsuccessful, return...<---
 		if(result.success == true)
 		{
 			spawnPosition = result.hit.point;
 			
-			if(window.liveTemplate.alignToNormal == true)
+			if(curTemplate.alignToNormal == true)
 			{
 				upVector = result.hit.normal;
 				placeUpVector = upVector;
 				
-				if(window.liveTemplate.flipNormalAlign)
+				if(curTemplate.flipNormalAlign)
 					placeUpVector *= -1f;
 			}
 
@@ -1636,12 +2413,12 @@ public class qb_Painter : EditorWindow
 		newObject = PrefabUtility.InstantiatePrefab(objectToSpawn) as GameObject;
 		qb_Object marker = newObject.AddComponent<qb_Object>();//.hideFlags = HideFlags.HideInInspector;
 		marker.hideFlags = HideFlags.HideInInspector;
-		Undo.RegisterCreatedObjectUndo(newObject,"QB Place Object");
+		Undo.RegisterCreatedObjectUndo(newObject,"qbP");
 
 	//6 : use settings to scale, rotate, and place the object
-		if(window.liveTemplate.alignToNormal)
+		if(curTemplate.alignToNormal)
 		{
-			spawnRotation = Quaternion.LookRotation(curStroke.GetCurPoint().dirVector,placeUpVector);
+			spawnRotation = Quaternion.LookRotation(curStrokes[i].GetCurPoint().dirVector,placeUpVector);
 		}
 		
 		else
@@ -1651,94 +2428,146 @@ public class qb_Painter : EditorWindow
 		
 		newObject.transform.position = spawnPosition;
 		newObject.transform.rotation = spawnRotation;
-		newObject.transform.position += (newObject.transform.right * window.liveTemplate.positionOffset.x) + (upVector.normalized * window.liveTemplate.positionOffset.y) + (newObject.transform.forward * window.liveTemplate.positionOffset.z);
+		newObject.transform.position += (newObject.transform.right * curTemplate.positionOffset.x) + (upVector.normalized * curTemplate.positionOffset.y) + (newObject.transform.forward * curTemplate.positionOffset.z);
+
 	//7 : If we have a group, add the object to the group
-		if(window.liveTemplate.groupObjects == true && curGroup != null)
+		if(curTemplate.groupObjects == true)
 		{
-			curGroup.AddObject(newObject);
+			bool doGroup = false;
+			//if group is missing - (either not yet assigned based on selection, or does not exist in this scene)
+			if(curTemplate.curGroup == null)
+			{
+				//if the group selected is not "nothing" - otherwise no grouping is done
+				if(curTemplate.groupName != string.Empty)
+				{
+					//the group has a name - check if group exists in scene
+					qb_Group testGroup = GetGroupWithName(curTemplate.groupName);
+					
+					//if it does exist, assign as curGroup
+					if(testGroup == null)
+						curTemplate.curGroup = CreateGroup(curTemplate.groupName);
+					
+					else
+						curTemplate.curGroup = testGroup;
+						
+					doGroup = true;
+				}
+			}
+			
+			else
+				doGroup = true;
+			
+			if(doGroup)
+			curTemplate.curGroup.AddObject(newObject);
 		}
-		
-//		qb_ObjectContainer.GetInstance().AddObject(newObject);
-		
+				
 		return newObject;
 	}
 	
-	private static void EraseGeo(qb_Point newPoint)
+	private static void EraseGeo(qb_Point newPoint,int i)
 	{
-//		qb_ObjectContainer objectContainer = qb_ObjectContainer.GetInstance();
+		qb_Template curTemplate = window.brushTemplates[i];
 		
-		GameObject[] objects = window.GetObjects();
+		GameObject[] objects = window.GetGroupObjects();
 		List<int> removalList = new List<int>();
 		
 		object curPrefab = null;
 		bool eraseSelected = false;
 		bool eraseGrouped = false;
+		bool groupIsNothing = false;
 		
-		if(window.liveTemplate.eraseBySelected == true)
-			if(window.selectedPrefabIndex != -1)
+		if(curTemplate.eraseBySelected == true)
+			if(curTemplate.selectedPrefabIndex != -1)
 			{
-				//AssetDatabase.GUIDToAssetPath(GUIDstring);
-				curPrefab = window.liveTemplate.prefabGroup[window.selectedPrefabIndex].prefab;
+				curPrefab = curTemplate.prefabGroup[curTemplate.selectedPrefabIndex].prefab;
 				eraseSelected = true;
 			}
 
-		if(window.liveTemplate.eraseByGroup == true)
+		if(curTemplate.eraseByGroup == true)
 		{	
-			if(curGroup != null)
+			if(curTemplate.curGroup != null)
 			{
 				eraseGrouped = true;
 			}
+			
+			else
+			{
+				if(curTemplate.groupName == string.Empty)
+				{
+					eraseGrouped = true;
+					groupIsNothing = true;
+				}
+				
+				else
+				{
+					curTemplate.curGroup = GetGroupWithName(curTemplate.groupName);
+				}
+			}
+			
+			if(curTemplate.curGroup == null && groupIsNothing == false)
+				eraseGrouped = false;
 		}
 		
 		bool addToList;
-		for(int i = 0; i < objects.Length; i++)
+		for(int ii = 0; ii < objects.Length; ii++)
 		{
 			addToList = true;
 			
-			if(Vector3.Distance(objects[i].transform.position, newPoint.position) < window.liveTemplate.brushRadius)
+			if(Vector3.Distance(objects[ii].transform.position, newPoint.position) < curTemplate.brushRadius)
 			{
-
 				if(eraseSelected == true)
 				{
 					//if the current object's prefab is the curPrefab
-					if(PrefabUtility.GetPrefabParent(objects[i]) != curPrefab)
-						addToList = false;
-					
+					if(PrefabUtility.GetPrefabParent(objects[ii]) != curPrefab)
+						addToList = false;		
 				}
 				//if group erase is on
 				if(eraseGrouped == true)
-					if(objects[i].transform.parent != curGroup.transform)
-					{
-						addToList = false;
+				{
+					if(groupIsNothing == false)
+					{//Regular, group based
+						if(objects[ii].transform.parent != curTemplate.curGroup.transform)//curGroup.transform)
+						{
+							addToList = false;
+						}
 					}
+					//Only those which have no group
+					else
+					{
+						if(objects[ii].transform.parent != null)//curGroup.transform)
+						{
+							addToList = false;
+						}
+					}
+				}
 				if(addToList == true)
-					removalList.Add(i);
+					removalList.Add(ii);
 			}
 		}
 		
 		if(removalList.Count > 0)
 			window.EraseObjects(removalList);
 	}
-	
-	private static qb_RaycastResult DoPlacementRaycast(Vector3 castPosition,Vector3 rayDirection)
+
+	private static qb_RaycastResult DoPlacementRaycast(Vector3 castPosition,Vector3 rayDirection, qb_Template curTemplate)
 	{
 		RaycastHit hit;
 		bool success = false;
 		
-		Physics.Raycast(castPosition + (-0.1f * rayDirection),rayDirection,out hit,float.MaxValue);
+		Physics.Raycast(castPosition + (-0.1f * rayDirection),rayDirection,out hit,float.MaxValue,curTemplate.layerIndex);
 		
 		if(hit.collider != null)
 		{
 			success = true;
 			
-			if(window.liveTemplate.paintToLayer == true)
+			if(curTemplate.paintToLayer == true)
 			{
 				//if(hit.collider.gameObject.layer != window.layerIndex)
-				if( (1 << hit.collider.gameObject.layer & window.liveTemplate.layerIndex) == 0)
+				if( (1 << hit.collider.gameObject.layer & curTemplate.layerIndex) == 0)
 					success = false;
 			}
 			
-			if(window.liveTemplate.paintToSelection == true)
+			if(curTemplate.paintToSelection == true)
 			{
 				
 				Transform[] selectedObjects = Selection.transforms;
@@ -1750,35 +2579,31 @@ public class qb_Painter : EditorWindow
 		}
 		
 		qb_RaycastResult result = new qb_RaycastResult(success,hit);
-
+		
 		return result;
 	}
 	
-	private static Vector3 GetRandomPointOnDisk(Vector3 upVector)
+	private static Vector3 GetRandomPointOnDisk(Vector3 position, Vector3 upVector, float scatterRadius)
 	{
-		float angle = Random.Range(0f,1f) * Mathf.PI;
+		float angle = Random.Range(0f,2f) * Mathf.PI;
 		Vector2 direction = new Vector2((float)Mathf.Cos(angle), (float)Mathf.Sin(angle));
 		
 		Vector3 direction3D = new Vector3(direction.x,0f,direction.y);
+		//	Debug.DrawRay(position + new Vector3(0f,.2f,0f),direction3D,Color.red,5f);
+		//	Debug.DrawLine(position + new Vector3(0f,.2f,0f), position + new Vector3(0f,.2f,0f) + (direction3D * 1f),Color.red, 5f);
 		Vector3 flattened = Vector3.Cross(upVector, direction3D);
 		Vector3 diskDirection = Vector3.Cross(flattened,upVector);
 		
-		float distanceFromCenter = (window.liveTemplate.scatterRadius * window.liveTemplate.brushRadius)* Random.Range(0.0f,1.0f);
-		Vector3 randomPoint = curStroke.GetCurPoint().position + (diskDirection.normalized * distanceFromCenter);
+		//float distanceFromCenter = (window.liveTemplate.scatterRadius * window.liveTemplate.brushRadius)* Random.Range(0.0f,1.0f);
+		float distanceFromCenter = scatterRadius * Random.Range(0.0f,1.0f);
+		
+		Vector3 randomPoint = position + (diskDirection.normalized * distanceFromCenter);
 
 		return randomPoint;
 	}
 	
-	//private static Quaternion GetPlacementSpawnRotation()
-	//{
-		
-	//}
-	
 	private static Quaternion GetSpawnRotation(Vector3 upVector,Vector3 forwardVector)
-	{	
-		//based on rotation range about axis
-		//Quaternion rotation = Quaternion.AngleAxis(baseRotationY,upVector);
-		//Vector3 upVector = curStroke.GetCurPoint().upVector;
+	{
 		Quaternion rotation = Quaternion.identity;
 		Vector3 rotationOffset = Vector3.zero;
 
@@ -1798,23 +2623,104 @@ public class qb_Painter : EditorWindow
 		return rotation;
 	}
 	
-	private static RaycastHit DoMouseRaycast() //Does a Raycast from mouse position and returns the hit - the main thread uses it to draw a handle and paint
+	//Create compound layer mask - eliminate overlaps
+	
+	//We can just update the Compound Layer Mask when the layer menu is changed, when the Active State is changed, and when Switching Tabs
+	[SerializeField] private int compoundLayerMask;
+	[SerializeField] private bool compoundPaintToLayer;
+	//private static int CompoundLayerMask()
+	static int thisMask; //vars to be used in this function to keep from churning through new ones
+	static int compoundMask;
+	private static void UpdateCompoundLayerMask()
+	{
+		int count = window.brushTemplates.Length;
+		compoundMask =  0;
+		//LayerMask oneMask = new LayerMask();
+		thisMask =  0;
+		//Debug.Log("Updating Compound Layer Mask");
+		
+		//get the active template's mask		
+//		if(window.liveTemplate.paintToLayer)
+//		{
+//			thisMask = window.liveTemplate.layerIndex;
+//			compoundMask |= thisMask;
+//		}
+		
+		//if any others are active get their masks too		
+		if(areActive == true)
+			for(int i = 0; i < count; i ++)
+			{
+	//			if(i == window.liveTemplateIndex)
+	//			continue;
+				
+				if(window.brushTemplates[i].active == true || i == window.liveTemplateIndex)
+				{
+					if(window.brushTemplates[i].paintToLayer == true)
+					{
+						//add to layermask
+						thisMask =  window.brushTemplates[i].layerIndex;
+						compoundMask |= thisMask;
+					}
+				}
+			}
+		
+		else
+		{
+			thisMask = window.liveTemplate.layerIndex;
+			compoundMask |= thisMask;
+		}
+		
+		window.compoundLayerMask = compoundMask;
+	}
+	
+	[SerializeField] private bool compoundPaintToSelection;
+	
+	static bool paintToSelection = true;
+	static void UpdateCompoundPaintToSelection()
+	{//Debug.Log("Updating Compound Paint To Selection");
+		int count = window.brushTemplates.Length;
+		
+		
+		paintToSelection = true;
+
+		//if any templates don't have paint to selection checked, don't restrict painting to selection. (individual brushes will still do it themselves)	
+		if(areActive == true)
+			for(int i = 0; i < count; i++)
+			{
+				if(window.brushTemplates[i].active == true || i == window.liveTemplateIndex)
+				{
+					if(window.brushTemplates[i].paintToSelection == false)
+					{
+						paintToSelection = false;
+						break;
+					}
+				}
+			}
+			
+		else
+		{
+			paintToSelection = window.liveTemplate.paintToSelection;
+		}
+		
+		window.compoundPaintToSelection = paintToSelection;
+	}
+
+	private static RaycastHit DoMouseRaycastMulti()
 	{
 		Ray ray = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
 		RaycastHit hit;
 		
-		if(window.liveTemplate.paintToLayer == true && window.liveTemplate.layerIndex != -1)
-			Physics.Raycast(ray,out hit,float.MaxValue, window.layersMasked);//1 << window.layerIndex);
+		if(window.liveTemplate.paintToLayer == true && window.compoundLayerMask != -1)
+			Physics.Raycast(ray,out hit,float.MaxValue, window.compoundLayerMask);
 		
 		else
 			Physics.Raycast(ray,out hit,float.MaxValue);
-
-				
+		
 		if(hit.collider != null)
-		{	
+		{
 			paintable = true;
-			
-			if(window.liveTemplate.paintToSelection == true)
+
+			if(window.compoundPaintToSelection == true)
 			{
 				Transform hitObject = hit.collider.transform;
 				Transform[] selectedObjects = Selection.transforms;
@@ -1833,33 +2739,40 @@ public class qb_Painter : EditorWindow
 		
 		return hit;
 	}
-
+	
+	static Vector3 cursorUpVector = Vector3.zero;
+	static Vector3 cursorForwardVector = Vector3.zero;
+	static Vector3 cursorPositionVector = Vector3.zero;
 	private static void CalculateCursor(RaycastHit mouseRayHit)
 	{
-		Vector3 upVector = Vector3.zero;
-		Vector3 forwardVector = Vector3.zero;
-		Vector3 positionVector = Vector3.zero;
+		cursorUpVector = Vector3.zero;
+		cursorForwardVector = Vector3.zero;
+		cursorPositionVector = Vector3.zero;
 		
 		if(mouseRayHit.collider != null)
 		{
-			upVector = mouseRayHit.normal;
-			positionVector = mouseRayHit.point;
-			forwardVector = GetFlattenedDirection(Vector3.forward,upVector); //placement needs a direction to work with- we have no stroke direction yet, so we use flattened forward
+			cursorUpVector = mouseRayHit.normal;
+			cursorPositionVector = mouseRayHit.point;
+			cursorForwardVector = GetFlattenedDirection(Vector3.forward,cursorUpVector); //placement needs a direction to work with- we have no stroke direction yet, so we use flattened forward
 		}
 
-		cursorPoint.UpdatePoint(positionVector,upVector,forwardVector);
+		cursorPoint.UpdatePoint(cursorPositionVector,cursorUpVector,cursorForwardVector);
 	}
 	
-	private static void CreateGroup(string groupName)
+	private static qb_Group CreateGroup(string groupName)
 	{
 		GameObject newGroupObject = new GameObject("QB_Group_" + groupName);
-		curGroup = newGroupObject.AddComponent<qb_Group>();
-		curGroup.groupName = groupName;
-		groups.Add(curGroup);
+		qb_Group newGroup = newGroupObject.AddComponent<qb_Group>();
+		newGroup.groupName = groupName;
+	
+		groups.Add(newGroup);
 		groupNames.Add(groupName);
+		
+		return newGroup;
 	}
 	
-	private static void UpdateGroups() //updates the groups and groupNames arrays based on what is in the scene
+	//private static void UpdateGroups() //updates the groups and groupNames arrays based on what is in the scene
+	private static List<string> UpdateGroups()
 	{
 		qb_Group[] groupsInScene =  GameObject.FindObjectsOfType(typeof(qb_Group)) as qb_Group[];
 		
@@ -1872,6 +2785,7 @@ public class qb_Painter : EditorWindow
 			groupNames.Add(groupsInScene[i].groupName);
 		}
 		
+		return groupNames;
 	}
 	
 	private static bool GroupWithNameExists(string groupName)
@@ -1888,90 +2802,110 @@ public class qb_Painter : EditorWindow
 		
 		return exists;					
 	}
-				
-	//This check is called whenever the tool needs to verify that the groups it has on record still exist in the scene
-	//Rather than doing the full update groups loop, this is cheaper and is only concerned with groups that might have been deleted
-	private static void CheckGroupsValid() 
+	
+	private static qb_Group GetGroupWithName(string groupName)
 	{
-		List<int> removalList = new List<int>();
+		qb_Group[] groupsInScene =  GameObject.FindObjectsOfType(typeof(qb_Group)) as qb_Group[];
 		
-		for(int i = 0; i < groups.Count; i++)
+		for(int i = 0; i < groupsInScene.Length; i++)
 		{
-			if(groups[i] == null)
-				removalList.Add(i);
+			if(groupsInScene[i].groupName == groupName)
+				return groupsInScene[i];
 		}
 		
-		for(int x = 0; x < removalList.Count; x++)
-		{
-			groups.RemoveAt(removalList[x]);
-			window.Repaint();
-
-		}
-		
-		if(groups.Count == 0)
-		{
-			window.liveTemplate.groupObjects = false;
-			window.Repaint();
-		}
-		
+		return null;
 	}
 
-	static List<Object> PrefabDragBox(int width,Texture2D texture, string text)
+	static void AddPrefabList(List<Object> newPrefabs)
 	{
-		List<Object> draggedObjects = new List<Object>();
-		
-		// Draw the controls
-
-		window.prefabAddButtonStyle.normal.background = texture;
-
-			GUILayout.Label(text,window.prefabAddButtonStyle,GUILayout.Width(width),GUILayout.MinWidth(width),GUILayout.Height(60),GUILayout.MinHeight(60));		
-				 
-		Rect lastRect = GUILayoutUtility.GetLastRect();
-
-		
-		// Handle events
-		Event evt = Event.current;
-		switch (evt.type)
+		if(newPrefabs.Count > 0)
 		{
-			case EventType.DragUpdated:
-			// Test against rect from last repaint
-			if (lastRect.Contains(evt.mousePosition))
+			foreach(Object newPrefab in newPrefabs)
 			{
-				// Change cursor and consume the event
-				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-				evt.Use();
+				ArrayUtility.Add(ref window.liveTemplate.prefabGroup,new qb_PrefabObject(newPrefab,1f));
 			}
-			break;
 			
-			case EventType.DragPerform:
-			// Test against rect from last repaint
-			if (lastRect.Contains(evt.mousePosition))
-			{
-		
-				foreach(Object draggedObject in DragAndDrop.objectReferences)
-				{
-					if(draggedObject.GetType() == typeof(GameObject))	//Debug.Log(draggedObject.GetType());
-					{
-						draggedObjects.Add(draggedObject);
-						window.liveTemplate.dirty = true;
-						window.clearSelection = true;
-					}
-				}
-				// Change cursor and consume the event and drag
-				DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-				DragAndDrop.AcceptDrag();
-				evt.Use();
-			}
-			break;
+			newPrefabs.Clear();
+			window.RefreshPrefabIcons();
+		}
+	}
+	
+	private void RemovePrefab(int itemIndex)
+	{
+		if(liveTemplate.selectedPrefabIndex > itemIndex)
+		{
+			liveTemplate.selectedPrefabIndex -= 1;
 		}
 		
-		return draggedObjects;
+		else if(liveTemplate.selectedPrefabIndex == itemIndex)
+		{
+			liveTemplate.selectedPrefabIndex = -1;
+		}
+		
+		ArrayUtility.RemoveAt(ref liveTemplate.prefabGroup,itemIndex);
+		
+		liveTemplate.dirty = true;
+		clearSelection = true;
+		
+		if(liveTemplate.prefabGroup.Length < 4)
+			prefabPaneOpen = false;
+		
+		window.Repaint();
+	}
+	
+	private void RefreshPrefabIcons()
+	{
+		int count = liveTemplate.prefabGroup.Length;
+		
+		for(int i = 0; i < count; i++)
+			RefreshPrefabIcon(i);
+			
+		window.Repaint();
+	}
+	
+	static int attemptCount = 0;
+	private void RefreshPrefabIcon(int i)
+	{
+		Texture2D prevTexture = null;
+		Object prefab = liveTemplate.prefabGroup[i].prefab;
+		attemptCount = 0;
+		while(prevTexture == null && attemptCount < 10)
+		{
+			prevTexture = TryGetAssetPreview(prefab);
+			
+			if(prevTexture == null)
+			{
+				WaitForPreview(i);
+			}
+			
+			attemptCount++;
+		}
+		
+		liveTemplate.prefabGroup[i].iconTexture = prevTexture;
+	}
+
+	static Texture2D TryGetAssetPreview(Object prefab)
+	{	
+		Texture2D previewTexture;
+		
+		#if UNITY_3_5
+		previewTexture = EditorUtility.GetAssetPreview(prefab);
+		#else
+		previewTexture = AssetPreview.GetAssetPreview(prefab);
+		#endif
+		
+		return previewTexture;
+	}
+	
+	private IEnumerator WaitForPreview(int i)
+	{
+		yield return new WaitForSeconds(0.1f);
 	}
 
 	void OnDestroy()
 	{
 		brushMode = BrushMode.Off;
-		SceneView.onSceneGUIDelegate -= onSceneGUIFunc;
+		SceneView.onSceneGUIDelegate -= onSceneGUIFunc;		
 //		window = null;
 	}
 	
@@ -1997,15 +2931,12 @@ public class qb_Painter : EditorWindow
 	
 	public void EraseObject(GameObject obj)
 	{
-		
 		#if UNITY_4_3
 			Undo.DestroyObjectImmediate(obj);
 		#else
-			Undo.RegisterSceneUndo("Erased Object");
-			//Undo.RegisterUndo(obj, "Erased Object");
+			Undo.RegisterSceneUndo("qbE");
 			GameObject.DestroyImmediate(obj);
 		#endif
-		
 	}
 
 	public void VerifyObjects()
@@ -2019,7 +2950,7 @@ public class qb_Painter : EditorWindow
 		}
 	}
 	
-	public GameObject[] GetObjects()
+	public GameObject[] GetGroupObjects()
 	{
 		VerifyObjects();
 		return sceneObjects;
@@ -2028,15 +2959,68 @@ public class qb_Painter : EditorWindow
 
 ////////SAVE-ABLE BRUSHES
 	
-	//Save curent window settings to a file 
+	private bool TryLoadTemplate(int tabIndex, string fileName)
+	{
+		return false;
+	}
+	
+	//Attempt to save a template to file. This is the wrapper for SaveSettings() 
+	//It runs through the different permutations of a save situation and pops dialogs if needed
+	private bool TrySaveTemplate(qb_Template template)
+	{
+		bool fileOnDisk = TemplateExistsOnDisk(template.brushName);
+		//int alreadyLoadedIndex = TemplateAlreadyOpen(template.brushName);
+		//File with this name exists on disk and the template we are attempting to save was not known by this name last time it was saved or loaded
+
+		if(fileOnDisk == true && template.lastKnownAs != template.brushName)
+		{
+			if(EditorUtility.DisplayDialog("File Override", "A template file with this name exists on disk, override the file?", "Override", "Cancel")) 
+			{
+				SaveSettings(template);
+				return true;
+			}
+			
+		}
+		//Otherwise just save
+		else
+		{
+			if(template.brushName == string.Empty)
+			{
+				EditorUtility.DisplayDialog("File Name Not Set","A template file must be named before it can be saved","Ok");
+			
+				//this needs to be replaced with a name entry dialog
+				
+				//Name Entry Field
+				//Save (disabled unless a name exists,Cancel
+				//this should basically call this same function again and return its bool when done so if cancel that one will return false or could rely on flow to return false
+				//this should account for overrides etc we could pop back to the naming dialog if it returns false
+			}
+		
+			else
+			{
+				SaveSettings(template);
+				return true;
+			}
+		}
+		
+		//additional permutation
+		//file with that name is already open in the tool
+		
+		return false;
+	}
+	
+	//Save an open template to a file - this is the final commit of a save 
 	private void SaveSettings(qb_Template template)
 	{
 		if(template.brushName == string.Empty)
-			return; //this should be a popup
+			return; //this should be a popup and already is - code should be unreachable, but left here as a safeguard
 		
-		qb_Utility.SaveTemplate(template, directory);
+		template.lastKnownAs = template.brushName;
+		template.dirty = false;
+		qb_Utility.SaveToDisk(template, directory);
 		UpdateTemplateSignatures();
 		AssetDatabase.Refresh();
+		window.Repaint();
 	}
 
 	private void ClearLiveTemplate()
@@ -2047,31 +3031,48 @@ public class qb_Painter : EditorWindow
 	
 	private void RestoreTemplateDefaults()
 	{
+		if(liveTemplateIndex < 0)
+			return;
+		
 		string	slotName = string.Empty;
-		bool 	slotLive = false;
 		
 		if(liveTemplate != null)
 		{
 			slotName = liveTemplate.brushName;
-			slotLive = liveTemplate.live;
 		}
 		
 		clearSelection = true;
-		liveTemplate = new qb_Template();//ScriptableObject.CreateInstance<qb_Template>();//new qb_Template();
-		liveTemplate.brushName = slotName;
-		liveTemplate.live = slotLive;
+		brushTemplates[liveTemplateIndex] = new qb_Template();
+		brushTemplates[liveTemplateIndex].brushName = slotName;
+		brushTemplates[liveTemplateIndex].lastKnownAs = slotName;
+		
+		SwitchToTab(liveTemplateIndex);
 		liveTemplate.dirty = true;
+		liveTemplate.live = true;
 	}
-	
-	//Load settings into the window - from the file associated with the currently selected slot
-	private void SwitchToTemplate(int slotIndex)
-	{
-		if(brushTemplates[slotIndex] == null)
-			return;
+
+	//Load settings into the window - from the file associated with the provided tab index
+	private void SwitchToTab(int tabIndex)
+	{//Debug.Log(tabIndex);
+		if(tabIndex == -1)
+			liveTemplate = new qb_Template();
+			
+		else
+		{	
+			if(brushTemplates[tabIndex] == null)
+				return;
+		
+			liveTemplate = brushTemplates[tabIndex];
+			
+		}
 		
 		clearSelection = true;
-		templateIndex = slotIndex;
-		liveTemplate = brushTemplates[slotIndex];
+		liveTemplateIndex = tabIndex;
+		prefabPaneOpen = false;
+		UpdateLayers();
+		UpdateCompoundLayerMask();
+		UpdateCompoundPaintToSelection();
+		RefreshPrefabIcons();
 	}
 	
 	private void UpdateTemplateSignatures()
@@ -2079,184 +3080,461 @@ public class qb_Painter : EditorWindow
 		templateSignatures = qb_Utility.GetTemplateFileSignatures(directory);
 	}
 
-	static void ClearSlots()
+	//Wrapper for CloseTab() - will throw dialogs if needed
+	private void TryCloseTab(int tabIndex)
 	{
-		for(int i = 0; i < 6; i++)
-		{
-			ClearSlot(i);
-		}
-	}
-
-	static void ClearSlot(int slotIndex)
-	{
-		window.brushTemplates[slotIndex] = null;
-	}
-	
-	//Save the correlation (by name) of which templates are in which slots
-	private void SaveSlotAssignments()
-	{
-		string prefix = "qb_SlotAssignment_";
+		//Permutations
+		//(1) File Exists on disk (implicit - has name)
+		//Dialog - "" (Cancel, Save & Close, Close w/o Saving)
 		
-		for(int i = 0; i < 6; i++)
-		{
-			if(brushTemplates[i] != null && brushTemplates[i].brushName != string.Empty)
-				EditorPrefs.SetString(prefix + i.ToString(),brushTemplates[i].brushName);			
-		}
-	}
-	
-	//Try to load the templates from the previous session into the slots in which they were previously located
-	private void LoadSlotAssignments()
-	{
-		string prefix = "qb_SlotAssignment_";
-		string[] names = new string[6];
+		//(2) File doesn't exist on disk
+		// Template has no Name
+		//Dialog - "" (Name Entry Field - (Cancel, Close & Save (disabled unless name is typed), Close w/o saving) )
+		//if file with entered name exists on disk, 
+		//Dialog - "" 
 		
-		for(int i = 0; i < 6; i++)
+		//(3) Template has name
+		//Dialog - (Cancel, Save & Close, Close w/o Saving)
+		
+		if(brushTemplates[tabIndex].dirty == true)
 		{
-			if(brushTemplates[i] != null && brushTemplates[i].brushName != string.Empty)
+		
+			int option = EditorUtility.DisplayDialogComplex("Template Has Changed", "The Template in the tab you are trying to close has changed since it was last saved, close it without saving?", "Save and Close","Close W/O Saving","Cancel");
+			
+			switch(option)
 			{
-				names[i] = EditorPrefs.GetString(prefix + i.ToString(),string.Empty);
+		
+			case 0:
+				if(TrySaveTemplate(brushTemplates[tabIndex]) == true)
+				{
+					goto case 1;
+				}
+				break;
+		
+			case 1:
+				CloseTabProper(tabIndex);
+				break;
+					
+			case 2:
+				//nothing
+				break;
 			}
 		}
 		
-		for(int i = 0; i < 6; i++)
+		else
 		{
-			if(names[i] != null)
-				brushTemplates[i] = qb_Utility.LoadTemplate(directory + names[i]);
+			CloseTabProper(tabIndex);
 		}
+
+	}
+	
+	//Close tab and manage GUI 
+	private void CloseTabProper(int tabIndex)
+	{
+		string templateName = brushTemplates[tabIndex].brushName;
+	
+		CloseTab(tabIndex);
 		
+		string fName = templateName;
+		if(fName == string.Empty)
+			fName = "Unnamed"; 
 		
+		//string tabNum = (tabIndex + 1).ToString("00");
+		QBLog("Closed Template: '" + fName + "'");
+		
+		int adjustedLiveTemplateIndex = ClearAdjustLiveTemplateIndex(tabIndex);
+		
+	//	if(adjustedLiveTemplateIndex != -1)
+			SwitchToTab(adjustedLiveTemplateIndex);
 	}
 
-	
-	[SerializeField] private GUIStyle prefabAmountSliderStyle;
-	[SerializeField] private GUIStyle prefabAmountSliderThumbStyle;
-	[SerializeField] private GUIStyle toggleButtonStyle;
-	[SerializeField] private GUIStyle prefabPreviewWindowStyle;
-	[SerializeField] private GUIStyle prefabSelectCheckStyle;
-	[SerializeField] private GUIStyle prefabRemoveXStyle;
-	[SerializeField] private GUIStyle prefabFieldStyle;
-	[SerializeField] private GUIStyle floatFieldCompressedStyle;
-	[SerializeField] private GUIStyle prefabAddButtonStyle;
-    [SerializeField] private GUIStyle picLabelStyle;
-	[SerializeField] private GUIStyle menuBlockStyle;
-	[SerializeField] private GUIStyle masterVerticalStyle;
-	[SerializeField] private GUIStyle tipLabelStyle;
-	[SerializeField] private GUIStyle picButtonStyle;
-	[SerializeField] private GUIStyle brushSlotContainerStyle;
-	[SerializeField] private GUIStyle brushStripStyle;
-	
-	[SerializeField] private GUIStyle shortToggleStyle;
-	[SerializeField] private GUIStyle saveIconContainerStyle;
-
-	
-    private void SetStyleParameters()
+	private void CloseTab(int tabIndex)
 	{
+		ArrayUtility.RemoveAt(ref brushTemplates,tabIndex);
+		
+		SaveTempSlots();
+		SaveToolState();
+		UpdateAreActive();
+		
+		window.Repaint();
+	}
+
+	private int ClearAdjustLiveTemplateIndex(int removedIndex)
+	{ 
+		int count = brushTemplates.Length;
+		int adjusted = -1;
+	
+		if(count == 0)
+		{	return adjusted;	}
+			
+		if(liveTemplateIndex > removedIndex)
+		{
+			adjusted = liveTemplateIndex - 1;
+		}
+		else
+		{
+			adjusted = liveTemplateIndex;
+		}
+		
+		if(liveTemplateIndex >= count)
+		{
+			adjusted = count - 1;
+		}
+		
+		return adjusted;
+	}
+	
+	//When qb is shutting down, save the slot info to user prefs
+	private void SaveTempSlots()
+	{//Debug.Log("Saving Temp Slots");
+	
+		int count = brushTemplates.Length;
+		EditorPrefs.SetInt("QB_templateCount",count);
+		
+		for(int i = 0; i < count; i++)
+		{
+			if(brushTemplates[i] != null)//&& brushTemplates[i].brushName != string.Empty)
+			{	//EditorPrefs.SetString(prefix + i.ToString(),brushTemplates[i].brushName);
+				qb_Utility.SaveToEditorPrefs(i,brushTemplates[i]);
+			}
+		}
+	}
+	
+	//When qb starts up, we re-load the last session's slot contents
+	private void LoadTempSlots()
+	{//Debug.Log("Loading Temp Slots");
+		//string prefix = "qbTemp_";
+		//string[] names = new string[6];
+		int count = EditorPrefs.GetInt("QB_templateCount",0);
+		brushTemplates = new qb_Template[count];
+		
+		if(count != 0)
+			for(int i = 0; i < count; i++)
+			{
+				brushTemplates[i] =	qb_Utility.LoadFromEditorPrefs(i);
+			}
+	}
+	
+	private void QBLog(string message)
+	{
+		//managed by tool preferences
+		if(!prefs_enableLog)
+			return;
+					
+		Debug.Log("QuickBrush: "  + message);
+	}
+
+	[SerializeField] public GUIStyle groupMenuDropdownStyle;
+
+	[SerializeField] public GUIStyle picButton_PrefabX;
+	[SerializeField] public GUIStyle picButton_PrefabCheck;
+	[SerializeField] public GUIStyle picButton_ResetSlider;
+	[SerializeField] public GUIStyle picButton_SaveIcon;
+	[SerializeField] public GUIStyle picButton_OpenFile;
+	[SerializeField] public GUIStyle picButton_ClearSlot;
+	[SerializeField] public GUIStyle picButton_SlotIcon_Active;
+	[SerializeField] public GUIStyle picButton_SlotIcon_InActive;
+	[SerializeField] public GUIStyle picButton_TemplateActive;
+	[SerializeField] public GUIStyle picButton_OpenFileLarge;
+	[SerializeField] public GUIStyle picButton_PrefabPaneDropdown_Closed;
+	[SerializeField] public GUIStyle picButton_PrefabPaneDropdown_Open;
+	
+	[SerializeField] public GUIStyle prefabAddField_Small;
+	[SerializeField] public GUIStyle prefabAddField_Span;
+	[SerializeField] public GUIStyle prefabPanelCrop;
+		
+	[SerializeField] public GUIStyle sliderLabelStyle;
+	[SerializeField] public GUIStyle prefabAmountSliderStyle;
+	[SerializeField] public GUIStyle prefabAmountSliderThumbStyle;
+	[SerializeField] public GUIStyle toggleButtonStyle;
+	[SerializeField] public GUIStyle prefabPreviewWindowStyle;
+	[SerializeField] public GUIStyle prefabFieldStyle;
+	[SerializeField] public GUIStyle floatFieldCompressedStyle;
+	
+	[SerializeField] public GUIStyle picLabelStyle;
+	[SerializeField] public GUIStyle menuBlockStyle;
+	[SerializeField] public GUIStyle masterVerticalStyle;
+	[SerializeField] public GUIStyle tipLabelStyle;
+	[SerializeField] public GUIStyle brushSlotContainerStyle;
+	[SerializeField] public GUIStyle slotActiveContainerStyle;
+	[SerializeField] public GUIStyle picButton_TemplateDirty;
+	[SerializeField] public GUIStyle brushStripStyle;
+	
+	[SerializeField] public GUIStyle shortToggleStyle;
+	[SerializeField] public GUIStyle saveIconContainerStyle;
+	
+    static void SetStyleParameters()
+	{
+		window.prefabPanelCrop.margin = new RectOffset(0,0,0,-10);
+		window.prefabPanelCrop.border = new RectOffset(0,0,0,0);
+	
+			MakePicButtonBase(window.picButton_ResetSlider);
+		window.picButton_ResetSlider.hover.background	= resetSliderIcon;
+		window.picButton_ResetSlider.normal.background	= resetSliderIcon;
+		window.picButton_ResetSlider.active.background	= resetSliderIcon_hover;
+
+			MakePicButtonBase(window.picButton_SaveIcon);
+		window.picButton_SaveIcon.hover.background	=	saveIcon_hover;
+		window.picButton_SaveIcon.normal.background	=	saveIcon;
+		window.picButton_SaveIcon.active.background	=	saveIcon;
+	
+			MakePicButtonBase(window.picButton_OpenFile);
+		window.picButton_OpenFile.hover.background	=	loadBrushIcon;
+		window.picButton_OpenFile.normal.background	=	loadBrushIcon;
+		window.picButton_OpenFile.active.background	=	loadBrushIcon_hover;
+				
+			MakePicButtonBase(window.picButton_ClearSlot);
+		window.picButton_ClearSlot.hover.background		=	clearBrushIcon;
+		window.picButton_ClearSlot.normal.background	=	clearBrushIcon;
+		window.picButton_ClearSlot.active.background	=	clearBrushIcon_hover;
+	
+			MakePicButtonBase(window.picButton_SlotIcon_InActive);
+		window.picButton_SlotIcon_InActive.hover.background		=	savedBrushIcon;
+		window.picButton_SlotIcon_InActive.normal.background	=	savedBrushIcon;
+		window.picButton_SlotIcon_InActive.active.background	=	savedBrushIcon;
+		
+			MakePicButtonBase(window.picButton_SlotIcon_Active);
+		window.picButton_SlotIcon_Active.hover.background	=	savedBrushIcon_Active;
+		window.picButton_SlotIcon_Active.normal.background	=	savedBrushIcon_Active;
+		window.picButton_SlotIcon_Active.active.background	=	savedBrushIcon_Active;
+		
+			MakePicButtonBase(window.picButton_PrefabX);
+		window.picButton_PrefabX.hover.background	=	removePrefabXTexture_normal;
+		window.picButton_PrefabX.normal.background	=	removePrefabXTexture_normal;
+		window.picButton_PrefabX.active.background	=	removePrefabXTexture_hover;
+		
+			MakePicButtonBase(window.picButton_PrefabCheck);
+		window.picButton_PrefabCheck.hover.background	=	selectPrefabCheckTexture_off;
+		window.picButton_PrefabCheck.normal.background	=	selectPrefabCheckTexture_off;
+		window.picButton_PrefabCheck.active.background	=	selectPrefabCheckTexture_active;
+				
+			MakePicButtonBase(window.picButton_TemplateActive);
+		window.picButton_TemplateActive.hover.background	=	templateActiveIcon_off;
+		window.picButton_TemplateActive.normal.background	=	templateActiveIcon_off;
+		window.picButton_TemplateActive.active.background	=	templateActiveIcon_active;
+		window.picButton_TemplateActive.fixedWidth = 16;
+		window.picButton_TemplateActive.fixedHeight = 16;
+		
+			MakePicButtonBase(window.picButton_TemplateDirty);
+
+		window.picButton_TemplateDirty.fixedWidth = 16;
+		window.picButton_TemplateDirty.fixedHeight = 16;
+		
+			MakePicButtonBase(window.picButton_OpenFileLarge);
+		window.picButton_OpenFileLarge.normal.background	=	loadBrushIconLarge;
+		window.picButton_OpenFileLarge.hover.background		=	loadBrushIconLarge;
+		window.picButton_OpenFileLarge.active.background	=	loadBrushIconLarge_hover;
+
+			MakePicButtonBase(window.picButton_PrefabPaneDropdown_Closed);
+		window.picButton_PrefabPaneDropdown_Closed.normal.background	=	prefabPaneDropdownIcon_closed_normal;
+		window.picButton_PrefabPaneDropdown_Closed.hover.background 	=	prefabPaneDropdownIcon_closed_normal;
+		window.picButton_PrefabPaneDropdown_Closed.active.background	=	prefabPaneDropdownIcon_closed_active;
+		window.picButton_PrefabPaneDropdown_Closed.margin.left = 4;
+		
+			MakePicButtonBase(window.picButton_PrefabPaneDropdown_Open);
+		window.picButton_PrefabPaneDropdown_Open.normal.background	=	prefabPaneDropdownIcon_open_normal;
+		window.picButton_PrefabPaneDropdown_Open.hover.background	=	prefabPaneDropdownIcon_open_normal;
+		window.picButton_PrefabPaneDropdown_Open.active.background	=	prefabPaneDropdownIcon_open_active;
+		window.picButton_PrefabPaneDropdown_Open.margin.left = 4;
+		window.picButton_PrefabPaneDropdown_Open.margin.top = -12;
+		
+		window.sliderLabelStyle.stretchWidth = false;
+		
+		window.sliderLabelStyle.padding.left = 0;
+		window.sliderLabelStyle.padding.right = 0;
+		window.sliderLabelStyle.margin.left = 0;
+		window.sliderLabelStyle.margin.right = 0;
+		
 		window.masterVerticalStyle.margin.left = 0;
 		window.masterVerticalStyle.margin.right = 0;
 		window.masterVerticalStyle.padding.left = 0;
 		window.masterVerticalStyle.padding.left = 0;
-		
-		window.prefabAmountSliderStyle.margin.top = 4;
 
+		window.prefabAmountSliderStyle.margin.top = 4;
 		window.prefabAmountSliderThumbStyle.fixedHeight = 10;
 		
-		window.prefabPreviewWindowStyle.margin.top = 4;
+		window.prefabPreviewWindowStyle.padding = new RectOffset(0,0,0,0);
+		window.prefabPreviewWindowStyle.margin = new RectOffset(0,0,4,0);
+		window.prefabPreviewWindowStyle.fixedHeight = 50;
+		window.prefabPreviewWindowStyle.fixedWidth = 50;
 		
-		window.prefabRemoveXStyle.normal.background = removePrefabXTexture_normal;
-		window.prefabRemoveXStyle.hover.background = removePrefabXTexture_hover;
+		window.prefabAddField_Small.margin = new RectOffset(4,0,0,0);
+		window.prefabAddField_Small.padding = new RectOffset(0,0,0,0);
+		window.prefabAddField_Small.fixedHeight = 60;
+		window.prefabAddField_Small.normal.background = addPrefabTexture;
+		window.prefabAddField_Span.alignment = TextAnchor.MiddleCenter;
 		
-		window.prefabSelectCheckStyle.normal.background = selectPrefabCheckTexture_normal;
-		window.prefabSelectCheckStyle.hover.background = selectPrefabCheckTexture_hover;
-		
-		window.prefabAddButtonStyle.margin.top = 0;
-        window.prefabAddButtonStyle.margin.bottom = 0;
-        window.prefabAddButtonStyle.margin.left = 4;
-        window.prefabAddButtonStyle.margin.right = 0;
-        window.prefabAddButtonStyle.fixedHeight = 60;
-		window.prefabAddButtonStyle.normal.background = addPrefabTexture;
+		window.prefabAddField_Span.margin = new RectOffset(4,0,0,0);
+		window.prefabAddField_Span.padding = new RectOffset(0,0,0,0);
+		window.prefabAddField_Span.fixedHeight = 60;
+		window.prefabAddField_Span.normal.background = addPrefabFieldTexture;
 		
 		window.prefabFieldStyle.padding.left = 1;
 		window.prefabFieldStyle.padding.right = 1;
-        window.prefabFieldStyle.margin.top = 0;
+		window.prefabFieldStyle.margin.top = 0;
 		window.prefabFieldStyle.margin.left = 7;
 		window.prefabFieldStyle.margin.right = 2;
 
-        window.prefabFieldStyle.fixedHeight = 60;
-        window.prefabFieldStyle.fixedWidth = 72;
+		window.prefabFieldStyle.fixedHeight = 60;
+		window.prefabFieldStyle.fixedWidth = 72;
 		window.prefabFieldStyle.normal.background = prefabFieldBackgroundTexture;
 		
 		window.floatFieldCompressedStyle.fixedWidth = 50;
 		window.floatFieldCompressedStyle.stretchWidth = false;
 		
-        window.picLabelStyle.padding.left = 0;
-        window.picLabelStyle.padding.top = 0;
-        window.picLabelStyle.padding.bottom = 0;
-        window.picLabelStyle.padding.right = 0;
-        window.picLabelStyle.margin.left = 4;
+		window.picLabelStyle.padding = new RectOffset(0,0,0,0);
+		window.picLabelStyle.margin.left = 4;
 		
-        window.picButtonStyle.padding.left = 0;
-        window.picButtonStyle.padding.top = 4;
-        window.picButtonStyle.padding.bottom = 0;
-        window.picButtonStyle.padding.right = 0;
-        window.picButtonStyle.margin.bottom = 0;
-        window.picButtonStyle.margin.top = 0;
-		window.picButtonStyle.margin.left = 0;
-		window.picButtonStyle.margin.right = 0;
-		window.picButtonStyle.alignment = TextAnchor.UpperCenter;
-		window.picButtonStyle.fontStyle = FontStyle.Bold;
-		window.picButtonStyle.hover.textColor = Color.black;
-		window.picButtonStyle.normal.textColor = Color.black;
-		
-		window.brushSlotContainerStyle.padding.left = 0;
-		window.brushSlotContainerStyle.padding.right = 0;
-		window.brushSlotContainerStyle.padding.top = 0;
-		window.brushSlotContainerStyle.padding.bottom = 0;
-		window.brushSlotContainerStyle.margin.left = 10;//12;
-		window.brushSlotContainerStyle.margin.right = 12;//12;
-		
-		window.saveIconContainerStyle.padding.left = 0;
-		window.saveIconContainerStyle.padding.right = 0;
-		window.saveIconContainerStyle.padding.top = 0;
-		window.saveIconContainerStyle.padding.bottom = 0;
-		window.saveIconContainerStyle.margin.left = 2;//12;
-		window.saveIconContainerStyle.margin.right = 2;//12;
-		window.saveIconContainerStyle.margin.top = 3;
-		window.saveIconContainerStyle.margin.bottom = 3;//12;
+		window.brushSlotContainerStyle.padding = new RectOffset(0,0,3,0);
+		window.brushSlotContainerStyle.margin.left = 10;
+		window.brushSlotContainerStyle.margin.right = 12;
 
+		window.brushSlotContainerStyle.overflow.left = 8;
+		window.brushSlotContainerStyle.overflow.right = 8;
+		window.brushSlotContainerStyle.overflow.bottom = 5;//12;
+
+		window.slotActiveContainerStyle.padding = new RectOffset(0,0,0,0);
+		window.slotActiveContainerStyle.margin.left = 10;
+		window.slotActiveContainerStyle.margin.right = 12;
+		window.slotActiveContainerStyle.fixedWidth = 32;
+		window.slotActiveContainerStyle.fixedHeight = 16;
+		
+		window.saveIconContainerStyle.padding = new RectOffset(0,0,0,0);
+		window.saveIconContainerStyle.margin = new RectOffset(2,2,3,3);
 		
 		window.menuBlockStyle.margin.right = 0;
 		
 		window.brushStripStyle.margin.right = 0;
 		
-		window.tipLabelStyle.fontSize = 9;
+		window.tipLabelStyle.fontSize = 8;
 		window.tipLabelStyle.padding.top = 0;
 		
 
 		window.shortToggleStyle.overflow = new RectOffset(80,0,-3,0);
 	}
 
-    private void BuildStyles()
+	static void MakePicButtonBase(GUIStyle style)
+	{
+		style.padding = new RectOffset(0,0,0,0);
+		style.margin = new RectOffset(0,0,0,0);
+		style.border = new RectOffset(0,0,0,0);
+
+		style.alignment = TextAnchor.UpperCenter;
+		style.fontStyle = FontStyle.Bold;
+		style.hover.textColor = Color.black;
+		style.normal.textColor = Color.black;
+	}
+
+    static void BuildStyles()
     {
-		window.masterVerticalStyle = new GUIStyle(EditorStyles.label);
-        window.prefabAmountSliderStyle = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).verticalSlider);
-        window.prefabAmountSliderThumbStyle = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).verticalSliderThumb);
-        window.toggleButtonStyle = new GUIStyle(EditorStyles.radioButton); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).toggle);//
-        window.floatFieldCompressedStyle = new GUIStyle(EditorStyles.textField); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).textField);//
-        window.prefabPreviewWindowStyle = new GUIStyle(EditorStyles.label); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).button);
-        window.prefabRemoveXStyle = new GUIStyle(EditorStyles.label); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).label);
-        window.prefabSelectCheckStyle = new GUIStyle(EditorStyles.label); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).label);
-        window.prefabAddButtonStyle = new GUIStyle(EditorStyles.miniButton); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).button);
-        window.prefabFieldStyle = new GUIStyle(EditorStyles.label); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).textField);
-        window.picLabelStyle = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).label);//new GUIStyle(EditorStyles.miniButton); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).button);
-        window.picButtonStyle = new GUIStyle(EditorStyles.label);
-		window.menuBlockStyle = new GUIStyle(EditorStyles.textField);//new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).textArea);//new GUIStyle(EditorStyles.textField); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).textField);
-		window.tipLabelStyle = new GUIStyle(EditorStyles.label);
-		window.brushSlotContainerStyle = new GUIStyle(EditorStyles.label);
-		window.saveIconContainerStyle = new GUIStyle(EditorStyles.label);
-		window.brushStripStyle = new GUIStyle(EditorStyles.label);
-		window.shortToggleStyle = new GUIStyle(EditorStyles.toggle);
+    	try
+    	{				
+			window.groupMenuDropdownStyle = new GUIStyle(EditorStyles.popup);
+			window.prefabPanelCrop = new GUIStyle();
+    	
+			window.picButton_PrefabX = new GUIStyle(EditorStyles.label);
+			window.picButton_PrefabCheck = new GUIStyle(EditorStyles.label);
+			window.picButton_ResetSlider = new GUIStyle(EditorStyles.label);
+			window.picButton_SaveIcon = new GUIStyle(EditorStyles.label);
+			window.picButton_OpenFile = new GUIStyle(EditorStyles.label);
+			window.picButton_ClearSlot = new GUIStyle(EditorStyles.label);
+			window.picButton_SlotIcon_Active = new GUIStyle(EditorStyles.label);
+			window.picButton_SlotIcon_InActive = new GUIStyle(EditorStyles.label);
+			window.picButton_TemplateActive = new GUIStyle(EditorStyles.label);
+			window.picButton_PrefabPaneDropdown_Closed = new GUIStyle(EditorStyles.label);
+			window.picButton_PrefabPaneDropdown_Open = new GUIStyle(EditorStyles.label);
+			window.picButton_TemplateDirty = new GUIStyle(EditorStyles.label);
+			
+			window.picButton_OpenFileLarge = new GUIStyle(EditorStyles.label);
+	
+			window.prefabAddField_Small =	new GUIStyle(EditorStyles.label);
+			window.prefabAddField_Span =	new GUIStyle(EditorStyles.label);
+				
+			window.sliderLabelStyle = new GUIStyle(EditorStyles.label);
+			window.masterVerticalStyle = new GUIStyle(EditorStyles.label);
+			window.prefabAmountSliderStyle = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).verticalSlider);
+			window.prefabAmountSliderThumbStyle = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).verticalSliderThumb);
+			window.toggleButtonStyle = new GUIStyle(EditorStyles.radioButton); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).toggle);//
+			window.floatFieldCompressedStyle = new GUIStyle(EditorStyles.textField); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).textField);//
+			window.prefabPreviewWindowStyle = new GUIStyle(EditorStyles.label); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).button);
+				
+			window.prefabFieldStyle = new GUIStyle(EditorStyles.label); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).textField);
+			window.picLabelStyle = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).label);//new GUIStyle(EditorStyles.miniButton); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).button);
+	       
+			window.menuBlockStyle = new GUIStyle(EditorStyles.textField);//new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).textArea);//new GUIStyle(EditorStyles.textField); //new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Scene).textField);
+			window.tipLabelStyle = new GUIStyle(EditorStyles.label);
+			window.brushSlotContainerStyle = new GUIStyle(EditorStyles.label);
+			window.slotActiveContainerStyle = new GUIStyle(EditorStyles.label);
+			window.saveIconContainerStyle = new GUIStyle(EditorStyles.label);
+			window.brushStripStyle = new GUIStyle(EditorStyles.label);
+			window.shortToggleStyle = new GUIStyle(EditorStyles.toggle);
+		}
+		
+		catch(System.Exception err)
+		{
+			err.Data.Clear();
+		}
+		
         SetStyleParameters();
+        
+//        window.builtStyles = true; 
     }
+    
+	//Loads the icon textures from the skin folder 
+	private static void LoadTextures()
+	{
+		string skinPath = directory + "/Resources/Skin/";
+		
+		addPrefabTexture				=		Resources.LoadAssetAtPath(skinPath + "qb_addPrefabIcon.tga", typeof(Texture2D)) as Texture2D;
+		addPrefabFieldTexture			=		Resources.LoadAssetAtPath(skinPath + "qb_addPrefabField.tga", typeof(Texture2D)) as Texture2D;
+		removePrefabXTexture_normal		=		Resources.LoadAssetAtPath(skinPath + "qb_removePrefabXIcon_normal.tga", typeof(Texture2D)) as Texture2D;
+		removePrefabXTexture_hover 		=		Resources.LoadAssetAtPath(skinPath + "qb_removePrefabXIcon_hover.tga", typeof(Texture2D)) as Texture2D;
+		
+		selectPrefabCheckTexture_off	=		Resources.LoadAssetAtPath(skinPath + "qb_selectPrefabCheck_off.tga", typeof(Texture2D)) as Texture2D;
+		selectPrefabCheckTexture_on 	=		Resources.LoadAssetAtPath(skinPath + "qb_selectPrefabCheck_on.tga", typeof(Texture2D)) as Texture2D;
+		selectPrefabCheckTexture_active =		Resources.LoadAssetAtPath(skinPath + "qb_selectPrefabCheck_active.tga", typeof(Texture2D)) as Texture2D;
+		
+		prefabFieldBackgroundTexture 	=		Resources.LoadAssetAtPath(skinPath + "qb_prefabFieldBackground.tga", typeof(Texture2D)) as Texture2D;
+		
+		brushIcon_Active 				=		Resources.LoadAssetAtPath(skinPath + "qb_brushIcon_Active.tga", typeof(Texture2D)) as Texture2D;
+		brushIcon_Inactive 				=		Resources.LoadAssetAtPath(skinPath + "qb_brushIcon_Inactive.tga", typeof(Texture2D)) as Texture2D;
+		brushIcon_Locked				=		Resources.LoadAssetAtPath(skinPath + "qb_brushIcon_Locked.tga", typeof(Texture2D)) as Texture2D;
+		
+		eraserIcon_Active				=		Resources.LoadAssetAtPath(skinPath + "qb_eraserIcon_Active.tga", typeof(Texture2D)) as Texture2D;
+		eraserIcon_Inactive				=		Resources.LoadAssetAtPath(skinPath + "qb_eraserIcon_Inactive.tga", typeof(Texture2D)) as Texture2D;		
+		
+		placementIcon_Active			=		Resources.LoadAssetAtPath(skinPath + "qb_placementIcon_Active.tga", typeof(Texture2D)) as Texture2D;
+		
+		savedBrushIcon					=		Resources.LoadAssetAtPath(skinPath + "qb_SavedBrushIcon.tga", typeof(Texture2D)) as Texture2D;
+		savedBrushIcon_Active			=		Resources.LoadAssetAtPath(skinPath + "qb_SavedBrushIcon_Active.tga", typeof(Texture2D)) as Texture2D;
+		
+		loadBrushIcon					=		Resources.LoadAssetAtPath(skinPath + "qb_LoadBrushIcon.tga", typeof(Texture2D)) as Texture2D;
+		loadBrushIcon_hover				=		Resources.LoadAssetAtPath(skinPath + "qb_LoadBrushIcon_hover.tga", typeof(Texture2D)) as Texture2D;
+		loadBrushIconLarge				=		Resources.LoadAssetAtPath(skinPath + "qb_LoadBrushIconLarge.tga", typeof(Texture2D)) as Texture2D;
+		loadBrushIconLarge_hover		=		Resources.LoadAssetAtPath(skinPath + "qb_LoadBrushIconLarge_hover.tga", typeof(Texture2D)) as Texture2D;
+		
+		saveIcon						=		Resources.LoadAssetAtPath(skinPath + "qb_SaveIcon.tga", typeof(Texture2D)) as Texture2D;
+		saveIcon_hover					=		Resources.LoadAssetAtPath(skinPath + "qb_SaveIcon_hover.tga", typeof(Texture2D)) as Texture2D;
+		
+		clearBrushIcon					= 		Resources.LoadAssetAtPath(skinPath + "qb_ClearBrushIcon.tga", typeof(Texture2D)) as Texture2D;
+		clearBrushIcon_hover			=		Resources.LoadAssetAtPath(skinPath + "qb_ClearBrushIcon_hover.tga", typeof(Texture2D)) as Texture2D;
+		
+		resetSliderIcon					=		Resources.LoadAssetAtPath(skinPath + "qb_ResetSliderIcon.tga", typeof(Texture2D)) as Texture2D;
+		resetSliderIcon_hover			=		Resources.LoadAssetAtPath(skinPath + "qb_ResetSliderIcon_hover.tga", typeof(Texture2D)) as Texture2D;
+		
+		templateActiveIcon_on			=		Resources.LoadAssetAtPath(skinPath + "qb_TemplateActiveIcon_on.tga", typeof(Texture2D)) as Texture2D;
+		templateActiveIcon_off			=		Resources.LoadAssetAtPath(skinPath + "qb_TemplateActiveIcon_off.tga", typeof(Texture2D)) as Texture2D;
+		templateActiveIcon_active		=		Resources.LoadAssetAtPath(skinPath + "qb_TemplateActiveIcon_active.tga", typeof(Texture2D)) as Texture2D;
+		templateTabBackground			=		Resources.LoadAssetAtPath(skinPath + "qb_TemplateTabBackground.tga", typeof(Texture2D)) as Texture2D;
+		templateTabBackground_inactive	=		Resources.LoadAssetAtPath(skinPath + "qb_TemplateTabBackground_inactive.tga", typeof(Texture2D)) as Texture2D;
+		
+		templateDirtyAsterisk			=		Resources.LoadAssetAtPath(skinPath + "qb_TemplateDirtyAsterisk.tga", typeof(Texture2D)) as Texture2D;
+		
+		prefabPaneDropdownIcon_closed_normal =	Resources.LoadAssetAtPath(skinPath + "qb_prefabPaneDropdownIcon_closed_normal.tga", typeof(Texture2D)) as Texture2D;
+		prefabPaneDropdownIcon_closed_active =	Resources.LoadAssetAtPath(skinPath + "qb_prefabPaneDropdownIcon_closed_active.tga", typeof(Texture2D)) as Texture2D;
+		prefabPaneDropdownIcon_open_normal =	Resources.LoadAssetAtPath(skinPath + "qb_prefabPaneDropdownIcon_open_normal.tga", typeof(Texture2D)) as Texture2D;
+		prefabPaneDropdownIcon_open_active =	Resources.LoadAssetAtPath(skinPath + "qb_prefabPaneDropdownIcon_open_active.tga", typeof(Texture2D)) as Texture2D;
+	}
 	
 	static string[] GetLayerList()
 	{
@@ -2265,13 +3543,15 @@ public class qb_Painter : EditorWindow
 		for(int i = 0; i < 32; i++)
 		{
 			string name = LayerMask.LayerToName(i);
-			if(name == string.Empty)
-				name = "    ";//"undefined";
+			//if(name == string.Empty)
+			//	name = "    ";//"undefined";
 			
 			layerArray[i] = name;
 		}
+		//Debug.Log("Getting Layer List");
 		
 		return layerArray;
 	}
 
 }
+

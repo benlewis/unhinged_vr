@@ -8,12 +8,6 @@ using ProCore.Decals;
 [CustomEditor(typeof(qd_Decal))]
 public class qd_Decal_Editor : Editor
 {
-	void OnEnable()
-	{
-		qd_Decal decal = (qd_Decal)target;
-		decal.VerifyMesh();
-	}
-
 	public override void OnInspectorGUI()
 	{
 		Color bc = GUI.backgroundColor;

@@ -16,6 +16,7 @@ public class qb_PrefabObject
 		this.weight = weight;
 	}
 	
-	public UnityEngine.Object prefab;
-	public float weight = 0.1f;
+	public UnityEngine.Object	prefab;
+	public Texture2D 			iconTexture;
+	public float				weight = 0.1f;
 }

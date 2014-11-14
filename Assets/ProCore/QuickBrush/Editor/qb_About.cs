@@ -14,23 +14,24 @@ public class qb_About : qb_Window
 	{
 		window = EditorWindow.GetWindow<qb_About>(false,"QB About");
 
-	 	window.position = new Rect(50,50,400,180);
-		window.maxSize = new Vector2(400,180);
-		window.minSize = new Vector2(400,180);
+	 	window.position = new Rect(50,50,284,200);
+		window.minSize = new Vector2(284f,100f);
+		window.maxSize = new Vector2(284f,140f);
 	}
 	
-	public const string RELEASE_VERSION = "1.0.6-RC1";
-	const string BUILD_DATE = "06-28-2014";
+	public const string RELEASE_VERSION = "1.1.0";
+	const string BUILD_DATE = "10-29-2014";
+	static Texture2D bulletPointTexture;
 	
-	void OnGUI()
+	public override void OnGUI()
 	{
-		BuildStyles();
+		base.OnGUI();
 		
 		EditorGUILayout.Space();
 
 		EditorGUILayout.BeginVertical();
 			
-			MenuListItem(false,true,"QuickBrush" + RELEASE_VERSION);
+			MenuListItem(false,true,"QuickBrush " + RELEASE_VERSION);
 			
 			EditorGUILayout.BeginHorizontal();
 				EditorGUILayout.LabelField("Version Number:");
@@ -44,4 +45,6 @@ public class qb_About : qb_Window
 				
 		EditorGUILayout.EndVertical();
 	}
+	
+
 }

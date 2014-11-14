@@ -2,11 +2,13 @@
 
 using UnityEngine;
 using System.Collections;
+using ProCore.Decals;
 
-namespace ProCore.Decals
-{
+// namespace ProCore.Decals // Cannot serialize MonoBehaviours in namespaces in Unity 3.5 ?
+// {
 [RequireComponent(typeof(MeshRenderer))]
 [RequireComponent(typeof(MeshFilter))]
+[ExecuteInEditMode]
 public class qd_Decal : MonoBehaviour
 {
 	public Texture2D texture { get { return _texture; } }
@@ -16,7 +18,7 @@ public class qd_Decal : MonoBehaviour
 
 	void Awake()
 	{
-		VerifyMesh();
+		Verify();
 	}
 
 	public void SetScale(float scale)
@@ -60,29 +62,31 @@ public class qd_Decal : MonoBehaviour
 		transform.localScale = Vector3.one;
 	}
 
-	public void VerifyMesh()
+	public void Verify()
 	{
+		Material mat = GetComponent<MeshRenderer>().sharedMaterial;
+
+		if(mat == null)
+		{
+			GameObject[] existingDecals = qdUtil.FindDecalsWithTexture(_texture);
+			existingDecals = System.Array.FindAll(existingDecals, x => x.GetComponent<MeshRenderer>().sharedMaterial != null);
+
+			if(existingDecals == null || existingDecals.Length < 1)
+			{
+				mat = new Material( Shader.Find("Transparent/Diffuse") );
+				mat.mainTexture = _texture;
+			}
+			else
+			{
+				mat = existingDecals[0].GetComponent<MeshRenderer>().sharedMaterial;
+			}	
+			
+			GetComponent<MeshRenderer>().sharedMaterial = mat;
+		}
+
 		if( GetComponent<MeshFilter>().sharedMesh == null )
 		{
-			Material mat = GetComponent<MeshRenderer>().sharedMaterial;
-
-			if(mat == null)
-			{
-				GameObject[] existingDecals = qdUtil.FindDecalsWithTexture(_texture);
-			
-				if(existingDecals == null || existingDecals.Length < 1)
-				{
-					mat = new Material( Shader.Find("Transparent/Diffuse") );
-					mat.mainTexture = _texture;
-				}
-				else
-				{
-					mat = existingDecals[0].GetComponent<MeshRenderer>().sharedMaterial;
-				}	
-			}
-
 			GetComponent<MeshFilter>().sharedMesh = qd_Mesh.DecalMesh("DecalMesh" + GetInstanceID(), mat, _rect, _scale);
-			GetComponent<MeshRenderer>().sharedMaterial = mat;
 		}
 	}
 #if DEBUG
@@ -102,4 +106,4 @@ public class qd_Decal : MonoBehaviour
 	}
 #endif
 }
-}
+// }
