@@ -24,16 +24,18 @@ public class ICFPSInputController : MonoBehaviour {
 	public void Update () {
 		InputDevice input = InputManager.ActiveDevice;		
 		
-		if (input.Action4.WasPressed)
-			ResetOrientation();
-			
-		if (input.LeftBumper.WasPressed)
-			yRotation -= 45.0f;
-
-		if (input.RightBumper.WasPressed)
-			yRotation += 45.0f;
-			
-		transform.rotation = Quaternion.Euler(0.0f, yRotation, 0.0f);
+		if (cameraController) {
+			if (input.Action4.WasPressed)
+				ResetOrientation();
+				
+			if (input.LeftBumper.WasPressed)
+				yRotation -= 45.0f;
+	
+			if (input.RightBumper.WasPressed)
+				yRotation += 45.0f;
+				
+			transform.rotation = Quaternion.Euler(0.0f, yRotation, 0.0f);
+		}
 					
 		// Get the input vector from keyboard or analog stick
 		var directionVector = new Vector3(input.LeftStickX, 0, input.LeftStickY);
@@ -56,9 +58,8 @@ public class ICFPSInputController : MonoBehaviour {
 		}
 		
 		// Apply the direction to the CharacterMotor
-		
-		// TODO: Follow the camera rotation instead of transform rotation
 		Quaternion rotation = transform.rotation;
+		
 		if (useHMD) {
 			float hmdY = cameraController.centerEyeAnchor.localRotation.eulerAngles.y;
 			rotation *= Quaternion.Euler(0.0f, hmdY, 0.0f);
