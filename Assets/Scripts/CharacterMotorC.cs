@@ -34,14 +34,17 @@ public class CharacterMotorC : MonoBehaviour
 	public bool inputJump = false;
 	
 	
+	[System.NonSerialized]
+	public bool isRunning = false;
+	
 	
 	
 	public class CharacterMotorMovement
 	{
 		// The maximum horizontal speed when moving
-		public float maxForwardSpeed = 3.0f;
-		public float maxSidewaysSpeed = 3.0f;
-		public float maxBackwardsSpeed = 3.0f;
+		public float maxForwardSpeed = 2.0f;
+		public float maxSidewaysSpeed = 1.5f;
+		public float maxBackwardsSpeed = 1.5f;
 		
 		// Curve for multiplying speed based on slope (negative = downwards)
 		
@@ -547,7 +550,13 @@ public class CharacterMotorC : MonoBehaviour
 			var movementSlopeAngle = Mathf.Asin(movement.velocity.normalized.y)  * Mathf.Rad2Deg;
 			maxSpeed *= movement.slopeSpeedMultiplier.Evaluate(movementSlopeAngle);
 		}
-		return tr.TransformDirection(desiredLocalDirection * (float)maxSpeed);
+		
+		float accelerator = 1.0f;
+		
+		if (isRunning)
+			accelerator = 2.0f;
+		
+		return tr.TransformDirection(desiredLocalDirection * (float)maxSpeed * accelerator);
 	}
 	
 	private Vector3 AdjustGroundVelocityToNormal (Vector3 hVelocity, Vector3 groundNormal)

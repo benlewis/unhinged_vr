@@ -65,6 +65,11 @@ public class ICFPSInputController : MonoBehaviour {
 			rotation *= Quaternion.Euler(0.0f, hmdY, 0.0f);
 		}
 		
+		if (input.LeftTrigger)
+			motor.isRunning = true;
+		else
+			motor.isRunning = false;
+		
 		motor.inputMoveDirection = rotation * directionVector;
 		// motor.inputJump = Input.GetButton("Jump");
 	}

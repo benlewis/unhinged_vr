@@ -34,7 +34,7 @@ public class ICMouseLook : MonoBehaviour {
 	void Update ()
 	{
 		InputDevice input = InputManager.ActiveDevice;
-		
+
 		if (axes == RotationAxes.MouseXAndY)
 		{
 			float rotationX = transform.localEulerAngles.y + input.RightStickX * sensitivityX;
