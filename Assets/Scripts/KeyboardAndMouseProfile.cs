@@ -81,7 +81,14 @@ namespace KeyboardToGamepadProfile
 					Handle = "Reset",
 					Target = InputControlType.Action4,
 					Source = KeyCodeButton ( KeyCode.R )
+				},
+				new InputControlMapping
+				{
+					Handle = "See Help",
+					Target = InputControlType.Action3,
+					Source = KeyCodeButton( KeyCode.Tab )
 				}
+				
 			};
 
 			AnalogMappings = new[]
