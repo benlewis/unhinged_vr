@@ -49,7 +49,7 @@ public class GearManager : MonoBehaviour {
 
 	public void AddGear(Gear g) {
 		// Set the gear's peg to be not selectable
-		g.GetComponentInParent<SelectableObject>().SetSelectable();
+		//g.GetComponentInParent<SelectableObject>().SetSelectable();
 	
 		// Keep track of all gears in the scene
 		if (!gears.Contains(g))

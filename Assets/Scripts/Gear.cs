@@ -17,7 +17,7 @@ public class Gear : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		radius = transform.FindChild("Gear Mesh").renderer.bounds.size.x;
+		radius = transform.renderer.bounds.size.x;
 
 		if (gameObject.activeSelf)
 			GearManager.Instance().AddGear(this);		
