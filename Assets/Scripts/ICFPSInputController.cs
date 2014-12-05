@@ -10,6 +10,8 @@ public class ICFPSInputController : MonoBehaviour {
 	public bool useHMD = false;
 	public OVRCameraRig cameraController = null; 
 	
+	public bool defaultRunning = false;
+	
 	private float yRotation = 0.0f;
 
 	// Use this for initialization
@@ -66,9 +68,9 @@ public class ICFPSInputController : MonoBehaviour {
 		}
 		
 		if (input.LeftTrigger)
-			motor.isRunning = true;
+			motor.isRunning = !defaultRunning;
 		else
-			motor.isRunning = false;
+			motor.isRunning = defaultRunning;
 		
 		motor.inputMoveDirection = rotation * directionVector;
 		// motor.inputJump = Input.GetButton("Jump");

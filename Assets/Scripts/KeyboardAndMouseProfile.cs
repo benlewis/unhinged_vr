@@ -33,13 +33,13 @@ namespace KeyboardToGamepadProfile
 			{
 				new InputControlMapping
 				{
-					Handle = "Fire - Mouse",
+					Handle = "Select",
 					Target = InputControlType.Action1,
 					Source = MouseButton0
 				},
 				new InputControlMapping
 				{
-					Handle = "Fire - Keyboard",
+					Handle = "Select",
 					Target = InputControlType.Action1,
 					// KeyCodeButton fires when any of the provided KeyCode params are down.
 					Source = KeyCodeButton( KeyCode.F, KeyCode.Return )

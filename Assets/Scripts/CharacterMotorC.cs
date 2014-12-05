@@ -13,7 +13,6 @@ using System.Collections;
 [AddComponentMenu("Character/Character Motor")]
 //@script AddComponentMenu ("Character/FPS Input Controller")
 
-
 public class CharacterMotorC : MonoBehaviour
 {
 	// Does this script currently respond to input?
@@ -38,7 +37,7 @@ public class CharacterMotorC : MonoBehaviour
 	public bool isRunning = false;
 	
 	
-	
+	[System.Serializable]
 	public class CharacterMotorMovement
 	{
 		// The maximum horizontal speed when moving
@@ -80,7 +79,7 @@ public class CharacterMotorC : MonoBehaviour
 		public Vector3 lastHitPoint =new Vector3(Mathf.Infinity, 0, 0);
 	}
 	
-	CharacterMotorMovement movement = new CharacterMotorMovement();
+	public CharacterMotorMovement movement = new CharacterMotorMovement();
 	
 	public enum MovementTransferOnJump
 	{
@@ -91,10 +90,11 @@ public class CharacterMotorC : MonoBehaviour
 	}
 	
 	// We will contain all the jumping related variables in one helper class for clarity.
+	[System.Serializable]
 	public class CharacterMotorJumping
 	{
 		// Can the character jump?
-		public bool enabled = true;
+		public bool enabled = false;
 		
 		// How high do we jump when pressing jump and letting go immediately
 		public float baseHeight = 1.0f;

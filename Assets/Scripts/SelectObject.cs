@@ -44,7 +44,7 @@ public class SelectObject : MonoBehaviour {
 		
 		InputDevice input = InputManager.ActiveDevice;
 		
-		if (input.Action1.WasPressed && selectedObject != null) {
+		if ((input.Action1.WasPressed) && selectedObject != null) {
 			if (selectSound)
 				audio.PlayOneShot(selectSound);
 								
