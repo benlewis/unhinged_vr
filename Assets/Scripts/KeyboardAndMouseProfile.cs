@@ -62,7 +62,7 @@ namespace KeyboardToGamepadProfile
 				{
 					Handle = "Accelerate - Keyboard",
 					Target = InputControlType.LeftTrigger,
-					Source = KeyCodeComboButton( KeyCode.LeftShift )
+					Source = KeyCodeComboButton( KeyCode.LeftControl )
 				},
 				new InputControlMapping
 				{
@@ -74,7 +74,7 @@ namespace KeyboardToGamepadProfile
 				{
 					Handle = "Crouch",
 					Target = InputControlType.RightTrigger,
-					Source = KeyCodeComboButton( KeyCode.LeftControl )
+					Source = KeyCodeComboButton( KeyCode.LeftShift )
 				},
 				new InputControlMapping
 				{

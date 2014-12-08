@@ -5,12 +5,11 @@ public class RotateForAngularVelocity : MonoBehaviour {
 
 	public Vector3 velocityToAchieve = Vector3.zero;
 
-	private Vector3 zLock;
+
 
 	// Use this for initialization
 	void Start () {
-		zLock = transform.localEulerAngles;
-		Debug.Log ("Starts at " + zLock);
+
 	}
 	
 	// Update is called once per frame
@@ -21,8 +20,5 @@ public class RotateForAngularVelocity : MonoBehaviour {
 		}
 	}
 	
-	void LateUpdate() {
-		zLock.z = transform.localEulerAngles.z;
-		transform.localEulerAngles = zLock;
-	}
+
 }
