@@ -16,7 +16,7 @@ public class RotateForAngularVelocity : MonoBehaviour {
 	void FixedUpdate () {
 		Vector3 localangularvelocity = transform.InverseTransformDirection(rigidbody.angularVelocity);
 		if (localangularvelocity != velocityToAchieve) {
-			rigidbody.AddRelativeTorque(velocityToAchieve - localangularvelocity);
+			rigidbody.AddRelativeTorque((velocityToAchieve - localangularvelocity) * 10.0f);
 		}
 	}
 	

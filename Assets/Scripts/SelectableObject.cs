@@ -16,7 +16,11 @@ public abstract class SelectableObject : MonoBehaviour {
 	protected Material[] baseMaterials;
 	protected Color[] baseColors;	
 	
+	protected InventoryManager inventory;
+	
 	public virtual void Start() {
+		inventory = FindObjectOfType<InventoryManager>();
+		
 		SetSelectable();
 		
 		baseColors = new Color[parts.Length];
